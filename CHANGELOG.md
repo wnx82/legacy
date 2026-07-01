@@ -7,6 +7,63 @@ projet adhère au [Semantic Versioning](https://semver.org/lang/fr/).
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-07-01
+
+### Corrigé
+
+Première installation réelle (`pnpm install`) et exécution de bout en bout
+(infra Docker complète, migrations, seed, build, tests) du scaffold généré.
+Corrige les erreurs bloquantes trouvées :
+
+- **`@legacy/shared` ne se chargeait pas au runtime dans l'API** : le
+  `package.json` pointait `main`/`types` vers le code source TypeScript brut
+  (`src/index.ts`), ce qui fonctionne pour les apps Next.js
+  (`transpilePackages`) mais provoquait un crash Node
+  (`ERR_MODULE_NOT_FOUND`) au démarrage de l'API. Ajout d'un script `build`
+  (tsc), pointage vers `dist/`, et `turbo.json` (`dev` dépend maintenant de
+  `^build`).
+- **`api/Dockerfile`** : le contexte de build de l'image `api` dans
+  `docker-compose.yml` pointait sur `api/` au lieu de la racine du monorepo,
+  cassant la copie des `package.json` des autres packages. La commande de
+  développement ne reconstruisait pas `@legacy/shared` après le montage du
+  volume `../packages`. L'étage `production` ne préservait pas la structure
+  de liens symboliques pnpm (`packages/`, `database/`).
+- **Prisma + Alpine** : le moteur de requêtes par défaut suppose OpenSSL 1.1,
+  absent des images Alpine récentes (OpenSSL 3), provoquant un crash au
+  démarrage (`Error loading shared library libssl.so.1.1`). Ajout de
+  `binaryTargets = ["native", "linux-musl-openssl-3.0.x"]` dans
+  `schema.prisma`.
+- **`pnpm db:migrate`/`db:seed`/`db:studio`** échouaient (« Environment
+  variable not found: DATABASE_URL ») car la CLI Prisma ne lit pas le `.env`
+  racine du monorepo. Ajout de `dotenv-cli` pour charger explicitement
+  `../.env` dans les scripts `database/package.json`.
+- **`nest build` produisait `dist/src/main.js` au lieu de `dist/main.js`**
+  (fichiers de test inclus dans la compilation, faute de
+  `tsconfig.build.json`), cassant `npm start` et l'image Docker de
+  production. Ajout du `tsconfig.build.json` standard NestJS.
+- **`infra/docker-compose.yml`** : tag d'image `minio/mc` inexistant
+  (`RELEASE.2024-10-08T09-37-25Z` → `latest`) ; option d'hostname Keycloak
+  dépréciée (`KC_HOSTNAME_PORT`) provoquant une erreur de démarrage,
+  remplacée par le format d'URL complète attendu par Keycloak ≥ 26.
+- Erreurs TypeScript dans l'API (`main.ts`, `audit-logs.service.ts`,
+  `test/health.e2e-spec.ts`) : typage du CORS, valeur JSON Prisma, import
+  `supertest`, dépendance `@types/compression` manquante.
+- Configuration Jest de l'API : le pattern de transformation `ts-jest`
+  matchait aussi les `.js` compilés de `@legacy/shared`, générant des
+  avertissements bruyants — restreint aux fichiers `.ts`.
+- Suppression du champ `workspaces` redondant dans le `package.json` racine
+  (non utilisé par pnpm, qui lit `pnpm-workspace.yaml`).
+
+### Validé
+
+`pnpm install`, `pnpm typecheck`, `pnpm test` et `pnpm build` passent sans
+erreur sur les 7 workspaces. Stack Docker Compose complète démarrée
+(PostgreSQL, Redis, MinIO, Keycloak avec import de realm, Umami, Mailhog,
+Adminer), migration + seed exécutés avec succès, API testée en local, en
+conteneur de développement et en image de production contre
+l'infrastructure réelle (formulaires publics, garde d'authentification,
+Swagger).
+
 ## [1.0.0] - 2026-07-01
 
 ### Ajouté
@@ -168,7 +225,8 @@ documentées et exécutables en local. Voir `docs/roadmap.md` pour la suite.
 - `.gitignore`, `.editorconfig`, `.nvmrc`, `LICENSE`.
 - README initial et présent CHANGELOG.
 
-[Unreleased]: https://github.com/legacy/legacy/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/legacy/legacy/compare/v1.0.1...HEAD
+[1.0.1]: https://github.com/legacy/legacy/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/legacy/legacy/compare/v0.10.0...v1.0.0
 [0.10.0]: https://github.com/legacy/legacy/compare/v0.9.0...v0.10.0
 [0.9.0]: https://github.com/legacy/legacy/compare/v0.8.0...v0.9.0
