@@ -7,6 +7,22 @@ projet adhère au [Semantic Versioning](https://semver.org/lang/fr/).
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-07-01
+
+### Ajouté
+
+- Documentation complète dans `/docs` : `architecture.md`,
+  `installation.md`, `security.md`, `rgpd.md`, `roadmap.md` (4 phases),
+  `api.md`, `product.md`, `deployment.md`.
+- README racine finalisé (démarrage rapide, structure, choix techniques,
+  tests).
+
+Cette version marque la fin du scaffold MVP initial de Legacy : les dix
+briques listées dans le cahier des charges (monorepo, infra, base de
+données, package partagé, API, design system, site public, portail
+professionnel, espace famille, application Flutter) sont en place,
+documentées et exécutables en local. Voir `docs/roadmap.md` pour la suite.
+
 ## [0.10.0] - 2026-07-01
 
 ### Ajouté
@@ -152,7 +168,8 @@ projet adhère au [Semantic Versioning](https://semver.org/lang/fr/).
 - `.gitignore`, `.editorconfig`, `.nvmrc`, `LICENSE`.
 - README initial et présent CHANGELOG.
 
-[Unreleased]: https://github.com/legacy/legacy/compare/v0.10.0...HEAD
+[Unreleased]: https://github.com/legacy/legacy/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/legacy/legacy/compare/v0.10.0...v1.0.0
 [0.10.0]: https://github.com/legacy/legacy/compare/v0.9.0...v0.10.0
 [0.9.0]: https://github.com/legacy/legacy/compare/v0.8.0...v0.9.0
 [0.8.0]: https://github.com/legacy/legacy/compare/v0.7.0...v0.8.0
