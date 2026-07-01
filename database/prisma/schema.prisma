@@ -1,0 +1,904 @@
+// =============================================================================
+// Legacy — Schéma Prisma
+//
+// Convention : identifiants cuid(), horodatage createdAt/updatedAt systématique,
+// suppression logique évitée sauf mention explicite (RGPD -> suppression réelle
+// via jobs dédiés, voir docs/rgpd.md).
+// =============================================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// -----------------------------------------------------------------------------
+// Enums
+// -----------------------------------------------------------------------------
+
+enum UserRole {
+  SUPER_ADMIN
+  FUNERAL_HOME_ADMIN
+  FUNERAL_ADVISOR
+  LIVING_USER
+  TRUSTED_PERSON
+  FAMILY_MEMBER
+  GUEST_LIMITED
+}
+
+enum OrganizationType {
+  FUNERAL_HOME
+  NURSING_HOME
+  NOTARY
+  INSURER
+  MUNICIPALITY
+  ASSOCIATION
+}
+
+enum MemberStatus {
+  INVITED
+  ACTIVE
+  SUSPENDED
+  REMOVED
+}
+
+enum LivingProfileStatus {
+  DRAFT
+  IN_PROGRESS
+  COMPLETE
+}
+
+enum DeathCaseStatus {
+  NEW
+  IN_PROGRESS
+  MISSING_DOCUMENTS
+  CEREMONY_PLANNED
+  COMPLETED
+  ARCHIVED
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  EXPIRED
+  REVOKED
+}
+
+enum InvitationType {
+  ORG_MEMBER
+  LIVING_USER_PROSPECT
+}
+
+enum ResponsibleType {
+  FAMILY
+  FUNERAL_HOME
+  BOTH
+}
+
+enum ChecklistTaskStatus {
+  TODO
+  IN_PROGRESS
+  BLOCKED
+  WAITING_DOCUMENT
+  DONE
+  NOT_APPLICABLE
+}
+
+enum ChecklistTaskPriority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
+enum ContactCategory {
+  FAMILY
+  FRIEND
+  DOCTOR
+  NOTARY
+  BANK
+  INSURER
+  EMPLOYER
+  ACCOUNTANT
+  LANDLORD
+  VETERINARIAN
+  NEIGHBOR
+  PRIORITY_CONTACT
+  OTHER
+}
+
+enum WishCategory {
+  BURIAL_OR_CREMATION
+  CEREMONY_TYPE
+  MUSIC
+  TEXTS
+  FLOWERS
+  CLOTHING
+  PEOPLE_TO_NOTIFY
+  MESSAGE_TO_LOVED_ONES
+  RELIGIOUS_CHOICE
+  ORGAN_DONATION
+  PREFERRED_FUNERAL_HOME
+  OTHER
+}
+
+enum AssetType {
+  BANK_ACCOUNT
+  LIFE_INSURANCE
+  REAL_ESTATE
+  VEHICLE
+  VALUABLE_ITEM
+  INVESTMENT
+  LOAN
+  DEBT
+  EQUIPMENT
+  OTHER
+}
+
+enum AssetStatus {
+  ACTIVE
+  TO_REVIEW
+  ARCHIVED
+}
+
+enum InsuranceType {
+  LIFE
+  HEALTH
+  HOME
+  AUTO
+  OTHER
+}
+
+enum SubscriptionCategory {
+  BANK
+  INSURANCE
+  ENERGY
+  TELECOM
+  STREAMING
+  CLOUD
+  SOCIAL_MEDIA
+  ADMINISTRATIVE
+  PROFESSIONAL
+  OTHER
+}
+
+enum SubscriptionAction {
+  CLOSE
+  KEEP
+  TRANSFER
+  CHECK
+}
+
+enum NoteVisibility {
+  INTERNAL_PRO
+  FAMILY_VISIBLE
+}
+
+enum AuditResult {
+  SUCCESS
+  FAILURE
+}
+
+enum NotificationType {
+  DOCUMENT_MISSING_REMINDER
+  TASK_REMINDER
+  FAMILY_INVITE
+  TRUSTED_PERSON_INVITE
+  SENSITIVE_ACCESS
+  DEATH_CASE_CREATED
+  SENSITIVE_DOCUMENT_DOWNLOADED
+  DOCUMENT_REQUESTED
+  STATUS_CHANGED
+  COMMENT_ADDED
+}
+
+enum ExportJobType {
+  PDF_LIVING_PROFILE
+  PDF_DEATH_CASE
+  ZIP_DOCUMENTS
+  RGPD_EXPORT
+  AUDIT_LOG_EXPORT
+}
+
+enum ExportJobStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+enum AccessGrantStatus {
+  PENDING
+  ACTIVE
+  SUSPENDED
+  REVOKED
+  EXPIRED
+}
+
+enum AccessActivationReason {
+  DEATH_CERTIFICATE
+  MANUAL_TRUSTED_PERSON
+  MANUAL_FUNERAL_HOME
+}
+
+enum ConsentType {
+  TERMS_OF_USE
+  PRIVACY_POLICY
+  MARKETING
+}
+
+enum DisclaimerContext {
+  REGISTRATION
+  WISHES_MODULE
+  ACCESS_AFTER_DEATH
+}
+
+enum DemoRequestStatus {
+  NEW
+  CONTACTED
+  CONVERTED
+  CLOSED
+}
+
+enum ContactRequestStatus {
+  NEW
+  IN_PROGRESS
+  CLOSED
+}
+
+// -----------------------------------------------------------------------------
+// Identité, organisations, RBAC
+// -----------------------------------------------------------------------------
+
+model User {
+  id          String   @id @default(cuid())
+  keycloakId  String   @unique
+  email       String   @unique
+  firstName   String
+  lastName    String
+  phone       String?
+  locale      String   @default("fr")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  memberships              OrganizationMember[]
+  livingProfile            LivingProfile?
+  createdDeathCases        DeathCase[]           @relation("DeathCaseCreatedBy")
+  authoredNotes            Note[]
+  auditLogs                AuditLog[]
+  notifications            Notification[]
+  consents                 Consent[]
+  disclaimerAcceptances    LegalDisclaimerAcceptance[]
+  sentInvitations          Invitation[]          @relation("InvitationSentBy")
+  sentFamilyInvites        FamilyInvite[]        @relation("FamilyInviteSentBy")
+  exportJobs               ExportJob[]
+  grantsReceived           AccessGrant[]         @relation("AccessGrantedTo")
+  grantsGiven              AccessGrant[]         @relation("AccessGrantedBy")
+  validatedAccessGrants    AccessGrant[]         @relation("AccessValidatedBy")
+  downloadTokensCreated    DownloadToken[]
+  uploadedDocuments        Document[]
+
+  @@index([email])
+}
+
+model Organization {
+  id                String           @id @default(cuid())
+  type              OrganizationType @default(FUNERAL_HOME)
+  name              String
+  logoUrl           String?
+  primaryColor      String           @default("#0B1E3D") // bleu nuit
+  secondaryColor    String           @default("#7C9885") // vert sauge
+  whiteLabelEnabled Boolean          @default(false)
+  address           String?
+  phone             String?
+  email             String?
+  vatNumber         String?
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+
+  members             OrganizationMember[]
+  deathCases          DeathCase[]
+  settings            FuneralHomeSettings?
+  checklistTemplates  ChecklistTemplate[]
+  invitations         Invitation[]
+  roles               Role[]
+  auditLogs           AuditLog[]
+
+  @@index([name])
+}
+
+model FuneralHomeSettings {
+  id                          String   @id @default(cuid())
+  organizationId              String   @unique
+  organization                Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  logoUrl                     String?
+  primaryColor                String?
+  secondaryColor              String?
+  messageTemplates            Json?    // { familyWelcome: "...", documentRequest: "..." }
+  defaultChecklistTemplateId  String?
+  createdAt                   DateTime @default(now())
+  updatedAt                   DateTime @updatedAt
+}
+
+model OrganizationMember {
+  id             String        @id @default(cuid())
+  organizationId String
+  organization   Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  userId         String
+  user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  baseRole       UserRole
+  customRoleId   String?
+  customRole     Role?         @relation(fields: [customRoleId], references: [id])
+  status         MemberStatus  @default(INVITED)
+  invitedAt      DateTime      @default(now())
+  joinedAt       DateTime?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  @@unique([organizationId, userId])
+  @@index([organizationId])
+}
+
+model Role {
+  id             String        @id @default(cuid())
+  organizationId String?
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  name           String
+  description    String?
+  permissions    Permission[]  @relation("RolePermissions")
+  members        OrganizationMember[]
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  @@unique([organizationId, name])
+}
+
+model Permission {
+  id          String @id @default(cuid())
+  key         String @unique // ex: "death_case.read", "document.download"
+  description String?
+  roles       Role[] @relation("RolePermissions")
+}
+
+// -----------------------------------------------------------------------------
+// Dossier vivant (avant décès)
+// -----------------------------------------------------------------------------
+
+model LivingProfile {
+  id               String               @id @default(cuid())
+  userId           String               @unique
+  user             User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status           LivingProfileStatus  @default(DRAFT)
+  progressPercent  Int                  @default(0)
+  birthDate        DateTime?
+  birthPlace       String?
+  nationalNumber   String?              // numéro de registre national (chiffré au niveau applicatif)
+  address          String?
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
+
+  trustedPersons   TrustedPerson[]
+  documents        Document[]
+  wishes           Wish[]
+  contacts         Contact[]
+  assets           Asset[]
+  insurances       Insurance[]
+  subscriptions    Subscription[]
+  pets             Pet[]
+  notes            Note[]
+  accessGrants     AccessGrant[]
+  linkedDeathCase  DeathCase?
+
+  @@index([userId])
+}
+
+model TrustedPerson {
+  id                  String        @id @default(cuid())
+  livingProfileId     String
+  livingProfile       LivingProfile @relation(fields: [livingProfileId], references: [id], onDelete: Cascade)
+  firstName           String
+  lastName             String
+  email                String
+  phone                String?
+  relationship         String?
+  canActivateAccess    Boolean       @default(false)
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+
+  @@index([livingProfileId])
+}
+
+model Wish {
+  id              String        @id @default(cuid())
+  livingProfileId String
+  livingProfile   LivingProfile @relation(fields: [livingProfileId], references: [id], onDelete: Cascade)
+  category        WishCategory
+  title           String?
+  content         String
+  order           Int           @default(0)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@index([livingProfileId])
+}
+
+// -----------------------------------------------------------------------------
+// Dossier décès (après décès)
+// -----------------------------------------------------------------------------
+
+model DeathCase {
+  id                    String          @id @default(cuid())
+  organizationId        String?
+  organization          Organization?   @relation(fields: [organizationId], references: [id])
+  createdByUserId       String
+  createdBy             User            @relation("DeathCaseCreatedBy", fields: [createdByUserId], references: [id])
+  linkedLivingProfileId String?         @unique
+  linkedLivingProfile   LivingProfile?  @relation(fields: [linkedLivingProfileId], references: [id])
+  deceasedFirstName     String
+  deceasedLastName      String
+  deceasedBirthDate     DateTime?
+  dateOfDeath           DateTime
+  placeOfDeath          String?
+  municipality          String?
+  status                DeathCaseStatus @default(NEW)
+  createdAt             DateTime        @default(now())
+  updatedAt             DateTime        @updatedAt
+  archivedAt            DateTime?
+
+  tasks         ChecklistTask[]
+  documents     Document[]
+  familyInvites FamilyInvite[]
+  invitations   Invitation[]
+  notes         Note[]
+  exportJobs    ExportJob[]
+  auditLogs     AuditLog[]
+
+  @@index([organizationId])
+  @@index([status])
+}
+
+model FamilyInvite {
+  id           String            @id @default(cuid())
+  deathCaseId  String
+  deathCase    DeathCase         @relation(fields: [deathCaseId], references: [id], onDelete: Cascade)
+  email        String
+  firstName    String?
+  lastName     String?
+  relationship String?
+  role         UserRole          @default(FAMILY_MEMBER)
+  token        String            @unique
+  status       InvitationStatus  @default(PENDING)
+  invitedById  String
+  invitedBy    User              @relation("FamilyInviteSentBy", fields: [invitedById], references: [id])
+  acceptedAt   DateTime?
+  expiresAt    DateTime
+  createdAt    DateTime          @default(now())
+
+  @@index([deathCaseId])
+  @@index([token])
+}
+
+model Invitation {
+  id             String           @id @default(cuid())
+  organizationId String
+  organization   Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  deathCaseId    String?
+  deathCase      DeathCase?       @relation(fields: [deathCaseId], references: [id])
+  email          String
+  type           InvitationType
+  invitedById    String
+  invitedBy      User             @relation("InvitationSentBy", fields: [invitedById], references: [id])
+  token          String           @unique
+  status         InvitationStatus @default(PENDING)
+  expiresAt      DateTime
+  acceptedAt     DateTime?
+  createdAt      DateTime         @default(now())
+
+  @@index([organizationId])
+  @@index([token])
+}
+
+// -----------------------------------------------------------------------------
+// Checklist formalités
+// -----------------------------------------------------------------------------
+
+model ChecklistTemplate {
+  id             String   @id @default(cuid())
+  organizationId String?
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  name           String
+  description    String?
+  isDefault      Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  items ChecklistTemplateItem[]
+
+  @@index([organizationId])
+}
+
+model ChecklistTemplateItem {
+  id                        String            @id @default(cuid())
+  templateId                String
+  template                  ChecklistTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  title                     String
+  description               String?
+  responsible               ResponsibleType   @default(FAMILY)
+  defaultPriority           ChecklistTaskPriority @default(NORMAL)
+  requiredDocumentCategoryId String?
+  requiredDocumentCategory  DocumentCategory? @relation(fields: [requiredDocumentCategoryId], references: [id])
+  order                     Int               @default(0)
+
+  @@index([templateId])
+}
+
+model ChecklistTask {
+  id                         String                @id @default(cuid())
+  deathCaseId                String
+  deathCase                  DeathCase             @relation(fields: [deathCaseId], references: [id], onDelete: Cascade)
+  title                      String
+  description                String?
+  responsible                ResponsibleType       @default(FAMILY)
+  status                     ChecklistTaskStatus   @default(TODO)
+  priority                   ChecklistTaskPriority @default(NORMAL)
+  dueDate                    DateTime?
+  requiredDocumentCategoryId String?
+  requiredDocumentCategory   DocumentCategory?     @relation(fields: [requiredDocumentCategoryId], references: [id])
+  visibleToFamily            Boolean               @default(true)
+  visibleToPro               Boolean               @default(true)
+  order                      Int                   @default(0)
+  createdAt                  DateTime              @default(now())
+  updatedAt                  DateTime              @updatedAt
+
+  notes       Note[]
+  attachments Document[]
+
+  @@index([deathCaseId])
+  @@index([status])
+}
+
+// -----------------------------------------------------------------------------
+// Documents
+// -----------------------------------------------------------------------------
+
+model DocumentCategory {
+  id    String @id @default(cuid())
+  key   String @unique // identity, health, insurance, bank, housing, succession, ceremony, family, pets, vehicles, work, taxes, other
+  label String
+
+  documents              Document[]
+  checklistTemplateItems ChecklistTemplateItem[]
+  checklistTasks         ChecklistTask[]
+}
+
+model Document {
+  id              String            @id @default(cuid())
+  livingProfileId String?
+  livingProfile   LivingProfile?    @relation(fields: [livingProfileId], references: [id], onDelete: Cascade)
+  deathCaseId     String?
+  deathCase       DeathCase?        @relation(fields: [deathCaseId], references: [id], onDelete: Cascade)
+  checklistTaskId String?
+  checklistTask   ChecklistTask?    @relation(fields: [checklistTaskId], references: [id])
+  categoryId      String
+  category        DocumentCategory  @relation(fields: [categoryId], references: [id])
+  filename        String
+  mimeType        String
+  sizeBytes       Int
+  storageKey      String            @unique // clé objet MinIO
+  checksumSha256  String
+  isEncrypted     Boolean           @default(true)
+  uploadedById    String
+  uploadedBy      User              @relation(fields: [uploadedById], references: [id])
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  deletedAt       DateTime?
+
+  downloadTokens DownloadToken[]
+
+  @@index([livingProfileId])
+  @@index([deathCaseId])
+}
+
+model DownloadToken {
+  id            String    @id @default(cuid())
+  documentId    String
+  document      Document  @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  token         String    @unique
+  createdById   String
+  createdBy     User      @relation(fields: [createdById], references: [id])
+  expiresAt     DateTime
+  usedAt        DateTime?
+  createdAt     DateTime  @default(now())
+
+  @@index([token])
+}
+
+// -----------------------------------------------------------------------------
+// Contacts, patrimoine, assurances, abonnements, animaux
+// -----------------------------------------------------------------------------
+
+model Contact {
+  id              String          @id @default(cuid())
+  livingProfileId String?
+  livingProfile   LivingProfile?  @relation(fields: [livingProfileId], references: [id], onDelete: Cascade)
+  category        ContactCategory
+  firstName       String
+  lastName        String?
+  relationship    String?
+  phone           String?
+  email           String?
+  address         String?
+  note            String?
+  priority        ChecklistTaskPriority @default(NORMAL)
+  visibleToFamily Boolean         @default(true)
+  visibleToPro    Boolean         @default(false)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  @@index([livingProfileId])
+}
+
+model Asset {
+  id              String        @id @default(cuid())
+  livingProfileId String
+  livingProfile   LivingProfile @relation(fields: [livingProfileId], references: [id], onDelete: Cascade)
+  type            AssetType
+  name            String
+  description     String?
+  estimatedValue  Decimal?      @db.Decimal(14, 2)
+  documentId      String?
+  contactId       String?
+  note            String?
+  status          AssetStatus   @default(ACTIVE)
+  visibleToFamily Boolean       @default(false)
+  visibleToPro    Boolean       @default(false)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@index([livingProfileId])
+}
+
+model Insurance {
+  id              String        @id @default(cuid())
+  livingProfileId String
+  livingProfile   LivingProfile @relation(fields: [livingProfileId], references: [id], onDelete: Cascade)
+  type            InsuranceType
+  provider        String
+  policyNumber    String?
+  contactId       String?
+  documentId      String?
+  note            String?
+  visibleToFamily Boolean       @default(false)
+  visibleToPro    Boolean       @default(false)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@index([livingProfileId])
+}
+
+model Subscription {
+  id              String               @id @default(cuid())
+  livingProfileId String
+  livingProfile   LivingProfile        @relation(fields: [livingProfileId], references: [id], onDelete: Cascade)
+  serviceName     String
+  category        SubscriptionCategory
+  website         String?
+  associatedEmail String?
+  instruction     String?
+  desiredAction   SubscriptionAction   @default(CHECK)
+  note            String?
+  documentId      String?
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+
+  @@index([livingProfileId])
+}
+
+model Pet {
+  id              String        @id @default(cuid())
+  livingProfileId String
+  livingProfile   LivingProfile @relation(fields: [livingProfileId], references: [id], onDelete: Cascade)
+  name            String
+  species         String
+  breed           String?
+  age             Int?
+  veterinarian    String?
+  diet            String?
+  treatment       String?
+  contactId       String?
+  instructions    String?
+  documentId      String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@index([livingProfileId])
+}
+
+model Note {
+  id              String          @id @default(cuid())
+  authorId        String
+  author          User            @relation(fields: [authorId], references: [id])
+  deathCaseId     String?
+  deathCase       DeathCase?      @relation(fields: [deathCaseId], references: [id], onDelete: Cascade)
+  livingProfileId String?
+  livingProfile   LivingProfile?  @relation(fields: [livingProfileId], references: [id], onDelete: Cascade)
+  checklistTaskId String?
+  checklistTask   ChecklistTask?  @relation(fields: [checklistTaskId], references: [id], onDelete: Cascade)
+  content         String
+  visibility      NoteVisibility  @default(INTERNAL_PRO)
+  createdAt       DateTime        @default(now())
+
+  @@index([deathCaseId])
+  @@index([livingProfileId])
+}
+
+// -----------------------------------------------------------------------------
+// Accès après décès
+// -----------------------------------------------------------------------------
+
+model AccessGrant {
+  id                        String                  @id @default(cuid())
+  livingProfileId           String
+  livingProfile             LivingProfile           @relation(fields: [livingProfileId], references: [id], onDelete: Cascade)
+  grantedToUserId           String
+  grantedTo                 User                    @relation("AccessGrantedTo", fields: [grantedToUserId], references: [id])
+  grantedByUserId           String?
+  grantedBy                 User?                   @relation("AccessGrantedBy", fields: [grantedByUserId], references: [id])
+  validatedByUserId         String?
+  validatedBy               User?                   @relation("AccessValidatedBy", fields: [validatedByUserId], references: [id])
+  status                    AccessGrantStatus       @default(PENDING)
+  activationReason          AccessActivationReason?
+  deathCertificateDocumentId String?
+  allowedCategories         Json? // ex: ["documents", "contacts", "wishes"]
+  expiresAt                 DateTime?
+  revokedAt                 DateTime?
+  createdAt                 DateTime                @default(now())
+  updatedAt                 DateTime                @updatedAt
+
+  @@index([livingProfileId])
+  @@index([grantedToUserId])
+}
+
+// -----------------------------------------------------------------------------
+// Notifications, exports, audit
+// -----------------------------------------------------------------------------
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      NotificationType
+  title     String
+  body      String
+  linkUrl   String?
+  isRead    Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  @@index([userId, isRead])
+}
+
+model ExportJob {
+  id                    String          @id @default(cuid())
+  requestedById         String
+  requestedBy           User            @relation(fields: [requestedById], references: [id])
+  type                  ExportJobType
+  status                ExportJobStatus @default(PENDING)
+  relatedLivingProfileId String?
+  relatedDeathCaseId    String?
+  relatedDeathCase      DeathCase?      @relation(fields: [relatedDeathCaseId], references: [id])
+  resultStorageKey      String?
+  errorMessage          String?
+  createdAt             DateTime        @default(now())
+  completedAt           DateTime?
+
+  @@index([requestedById])
+}
+
+model AuditLog {
+  id             String       @id @default(cuid())
+  userId         String?
+  user           User?        @relation(fields: [userId], references: [id])
+  organizationId String?
+  organization   Organization? @relation(fields: [organizationId], references: [id])
+  deathCaseId    String?
+  deathCase      DeathCase?   @relation(fields: [deathCaseId], references: [id])
+  action         String       // ex: "auth.login", "document.download", "access_grant.activate"
+  resourceType   String?
+  resourceId     String?
+  result         AuditResult  @default(SUCCESS)
+  ipAddress      String?
+  userAgent      String?
+  details        Json?
+  createdAt      DateTime     @default(now())
+
+  @@index([userId])
+  @@index([organizationId])
+  @@index([action])
+  @@index([createdAt])
+}
+
+// -----------------------------------------------------------------------------
+// Consentements, RGPD, mentions légales
+// -----------------------------------------------------------------------------
+
+model Consent {
+  id         String      @id @default(cuid())
+  userId     String
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type       ConsentType
+  version    String
+  acceptedAt DateTime    @default(now())
+  ipAddress  String?
+
+  @@index([userId])
+}
+
+model LegalDisclaimerAcceptance {
+  id         String            @id @default(cuid())
+  userId     String
+  user       User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  context    DisclaimerContext
+  version    String
+  acceptedAt DateTime          @default(now())
+
+  @@index([userId])
+}
+
+// -----------------------------------------------------------------------------
+// Site public (demandes, blog, guides)
+// -----------------------------------------------------------------------------
+
+model DemoRequest {
+  id               String            @id @default(cuid())
+  firstName        String
+  lastName         String
+  email            String
+  phone            String?
+  organizationName String?
+  message          String?
+  status           DemoRequestStatus @default(NEW)
+  createdAt        DateTime          @default(now())
+}
+
+model ContactRequest {
+  id        String                @id @default(cuid())
+  firstName String
+  lastName  String
+  email     String
+  subject   String
+  message   String
+  status    ContactRequestStatus  @default(NEW)
+  createdAt DateTime              @default(now())
+}
+
+model BlogPost {
+  id              String    @id @default(cuid())
+  slug            String    @unique
+  title           String
+  excerpt         String
+  content         String
+  coverImageUrl   String?
+  seoTitle        String?
+  seoDescription  String?
+  publishedAt     DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+model GuideArticle {
+  id              String    @id @default(cuid())
+  slug            String    @unique
+  category        String
+  title           String
+  excerpt         String
+  content         String
+  coverImageUrl   String?
+  seoTitle        String?
+  seoDescription  String?
+  publishedAt     DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
