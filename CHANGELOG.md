@@ -7,6 +7,22 @@ projet adhère au [Semantic Versioning](https://semver.org/lang/fr/).
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-07-01
+
+### Ajouté
+
+- API NestJS complète : authentification JWT Keycloak (JWKS), garde de rôles
+  globale, modules organisations, dossier vivant, dossier décès, checklist,
+  documents (upload/download signés MinIO), modèles de checklist,
+  notifications, exports asynchrones (BullMQ), audit logs, **statistiques**
+  (usage portail pro + plateforme), formulaires publics.
+- Swagger / OpenAPI exposé sur `/api/docs`.
+- Sécurité : Helmet, compression, CORS restreint, rate limiting
+  (`@nestjs/throttler`), filtre d'exception sans fuite d'information en
+  production, validation stricte des entrées (Zod via `nestjs-zod`).
+- Tests unitaires (`OrganizationsService`, DTO) et premier test e2e (`/health`).
+- `Dockerfile` multi-stage pour l'API (développement et production).
+
 ## [0.4.0] - 2026-07-01
 
 ### Ajouté
@@ -56,7 +72,8 @@ projet adhère au [Semantic Versioning](https://semver.org/lang/fr/).
 - `.gitignore`, `.editorconfig`, `.nvmrc`, `LICENSE`.
 - README initial et présent CHANGELOG.
 
-[Unreleased]: https://github.com/legacy/legacy/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/legacy/legacy/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/legacy/legacy/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/legacy/legacy/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/legacy/legacy/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/legacy/legacy/compare/v0.1.0...v0.2.0
