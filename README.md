@@ -16,7 +16,7 @@ l'avertissement légal complet et la vision produit dans
 
 ## Statut du projet
 
-✅ MVP scaffold complet — version **1.0.0**. Toutes les briques listées dans
+✅ MVP scaffold complet — version **1.0.3**. Toutes les briques listées dans
 le cahier des charges sont en place et exécutables en local (voir
 [CHANGELOG](CHANGELOG.md) pour le détail de chaque étape/version, et
 [`docs/roadmap.md`](docs/roadmap.md) pour ce qui reste à finaliser avant une
@@ -24,19 +24,58 @@ mise en production réelle).
 
 ## Démarrage rapide
 
+### Prérequis
+
+- Node.js ≥ 20 et pnpm (`corepack enable`)
+- Docker + Docker Compose
+- Flutter SDK ≥ 3.9 (uniquement pour l'application `apps/app`)
+
+### 1. Cloner et configurer les variables d'environnement
+
 ```bash
 cp .env.example .env
 cp apps/website/.env.local.example apps/website/.env.local
 cp apps/web-pro/.env.local.example apps/web-pro/.env.local
 cp apps/web-family/.env.local.example apps/web-family/.env.local
+```
 
+Les valeurs par défaut fonctionnent telles quelles en local. Adapter les
+secrets (`JWT_SECRET`, `MINIO_SECRET_KEY`, `KEYCLOAK_CLIENT_SECRET`,
+`KEYCLOAK_ADMIN_PASSWORD`…) avant tout usage au-delà du développement local.
+
+### 2. Installer les dépendances
+
+```bash
 pnpm install
-pnpm infra:up          # PostgreSQL, Keycloak, MinIO, Redis, Umami, Mailhog
+```
+
+### 3. Démarrer l'infrastructure — **toujours avant `pnpm dev`**
+
+```bash
+pnpm infra:up
+```
+
+Démarre PostgreSQL, Redis, MinIO, Keycloak (realm `legacy` préconfiguré,
+SMTP branché sur Mailhog) et Umami. Attendre ~20-30 secondes au premier
+démarrage le temps que Keycloak importe le realm
+(`pnpm infra:logs` pour suivre, ou `docker compose -f infra/docker-compose.yml ps`
+jusqu'à ce que `postgres` affiche `healthy`).
+
+### 4. Initialiser la base de données
+
+```bash
 pnpm db:generate
 pnpm db:migrate
 pnpm db:seed
-pnpm dev               # API + site public + portail pro + espace famille
 ```
+
+### 5. Lancer les applications
+
+```bash
+pnpm dev
+```
+
+Démarre en parallèle l'API et les trois apps Next.js :
 
 | Application | URL |
 | --- | --- |
@@ -45,8 +84,48 @@ pnpm dev               # API + site public + portail pro + espace famille
 | Espace famille | http://localhost:3003 |
 | API (Swagger) | http://localhost:3001/api/docs |
 
+Pour lancer une seule app : `pnpm --filter @legacy/api dev`,
+`pnpm --filter @legacy/website dev`, etc.
+
+### 6. (Optionnel) Application Flutter
+
+```bash
+cd apps/app
+flutter pub get
+flutter run --dart-define=API_URL=http://localhost:3001/api \
+            --dart-define=KEYCLOAK_DISCOVERY_URL=http://localhost:8080/realms/legacy/.well-known/openid-configuration
+```
+
+### Comptes et outils utiles en local
+
+| Outil | URL | Identifiants |
+| --- | --- | --- |
+| Compte admin de démo (Keycloak) | via `/login` sur le site public | `admin@legacy.local` / `ChangeMe123!` (mot de passe temporaire) |
+| Keycloak (admin console) | http://localhost:8080 | `admin` / valeur de `KEYCLOAK_ADMIN_PASSWORD` |
+| Mailhog (e-mails de test, dont la vérification d'adresse à l'inscription) | http://localhost:8025 | — |
+| MinIO console | http://localhost:9001 | valeurs de `MINIO_ACCESS_KEY` / `MINIO_SECRET_KEY` |
+| Adminer (PostgreSQL) | http://localhost:8082 | serveur `postgres`, utilisateur `legacy` |
+
+Créer un compte via `/register` sur le site public déclenche un e-mail de
+vérification **capturé par Mailhog** (jamais un vrai envoi en local) : ouvrir
+http://localhost:8025 pour cliquer sur le lien de vérification.
+
+### Réinitialiser complètement l'environnement local
+
+```bash
+docker compose -f infra/docker-compose.yml down -v   # efface aussi les volumes (DB, Keycloak, MinIO)
+pnpm infra:up
+pnpm db:migrate
+pnpm db:seed
+```
+
+Le `-v` est nécessaire après toute modification de
+`infra/keycloak/realm-export.json` : Keycloak n'importe le realm qu'une
+seule fois par volume (stratégie `IGNORE_EXISTING`).
+
 Voir [`docs/installation.md`](docs/installation.md) pour le guide détaillé
-(comptes de test, configuration d'Umami, lancement de l'app Flutter).
+et la section « Problèmes fréquents » (401 systématique, connexion/inscription
+qui semblent ne rien faire, erreurs Prisma, etc.).
 
 ## Documentation
 

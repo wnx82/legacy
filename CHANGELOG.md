@@ -7,6 +7,16 @@ projet adhère au [Semantic Versioning](https://semver.org/lang/fr/).
 
 ## [Unreleased]
 
+## [1.0.3] - 2026-07-01
+
+### Modifié
+
+- README racine enrichi en guide de lancement local complet et autonome :
+  prérequis, étapes détaillées, tableau des comptes et outils de
+  développement (Keycloak, Mailhog, MinIO, Adminer), procédure de
+  réinitialisation complète de l'environnement, renvoi vers le dépannage de
+  `docs/installation.md`.
+
 ## [1.0.2] - 2026-07-01
 
 ### Corrigé
@@ -266,17 +276,18 @@ documentées et exécutables en local. Voir `docs/roadmap.md` pour la suite.
 - `.gitignore`, `.editorconfig`, `.nvmrc`, `LICENSE`.
 - README initial et présent CHANGELOG.
 
-[Unreleased]: https://github.com/legacy/legacy/compare/v1.0.2...HEAD
-[1.0.2]: https://github.com/legacy/legacy/compare/v1.0.1...v1.0.2
-[1.0.1]: https://github.com/legacy/legacy/compare/v1.0.0...v1.0.1
-[1.0.0]: https://github.com/legacy/legacy/compare/v0.10.0...v1.0.0
-[0.10.0]: https://github.com/legacy/legacy/compare/v0.9.0...v0.10.0
-[0.9.0]: https://github.com/legacy/legacy/compare/v0.8.0...v0.9.0
-[0.8.0]: https://github.com/legacy/legacy/compare/v0.7.0...v0.8.0
-[0.7.0]: https://github.com/legacy/legacy/compare/v0.6.0...v0.7.0
-[0.6.0]: https://github.com/legacy/legacy/compare/v0.5.0...v0.6.0
-[0.5.0]: https://github.com/legacy/legacy/compare/v0.4.0...v0.5.0
-[0.4.0]: https://github.com/legacy/legacy/compare/v0.3.0...v0.4.0
-[0.3.0]: https://github.com/legacy/legacy/compare/v0.2.0...v0.3.0
-[0.2.0]: https://github.com/legacy/legacy/compare/v0.1.0...v0.2.0
-[0.1.0]: https://github.com/legacy/legacy/releases/tag/v0.1.0
+[Unreleased]: https://github.com/wnx82/legacy/compare/v1.0.3...HEAD
+[1.0.3]: https://github.com/wnx82/legacy/compare/v1.0.2...v1.0.3
+[1.0.2]: https://github.com/wnx82/legacy/compare/v1.0.1...v1.0.2
+[1.0.1]: https://github.com/wnx82/legacy/compare/v1.0.0...v1.0.1
+[1.0.0]: https://github.com/wnx82/legacy/compare/v0.10.0...v1.0.0
+[0.10.0]: https://github.com/wnx82/legacy/compare/v0.9.0...v0.10.0
+[0.9.0]: https://github.com/wnx82/legacy/compare/v0.8.0...v0.9.0
+[0.8.0]: https://github.com/wnx82/legacy/compare/v0.7.0...v0.8.0
+[0.7.0]: https://github.com/wnx82/legacy/compare/v0.6.0...v0.7.0
+[0.6.0]: https://github.com/wnx82/legacy/compare/v0.5.0...v0.6.0
+[0.5.0]: https://github.com/wnx82/legacy/compare/v0.4.0...v0.5.0
+[0.4.0]: https://github.com/wnx82/legacy/compare/v0.3.0...v0.4.0
+[0.3.0]: https://github.com/wnx82/legacy/compare/v0.2.0...v0.3.0
+[0.2.0]: https://github.com/wnx82/legacy/compare/v0.1.0...v0.2.0
+[0.1.0]: https://github.com/wnx82/legacy/releases/tag/v0.1.0

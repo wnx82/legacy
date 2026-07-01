@@ -1,6 +1,6 @@
 {
   "name": "legacy-platform",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "private": true,
   "description": "Legacy — Préparer l'après, accompagner ceux qu'on aime. Monorepo (site public, portail pro, espace famille, API, base de données, infra).",
   "license": "UNLICENSED",
