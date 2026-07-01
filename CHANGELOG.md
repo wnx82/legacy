@@ -7,6 +7,26 @@ projet adhère au [Semantic Versioning](https://semver.org/lang/fr/).
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-07-01
+
+### Ajouté
+
+- Site public Legacy (`apps/website`, Next.js App Router) : accueil complet
+  (hero, pourquoi Legacy, trois publics, fonctionnalités, sécurité, comment
+  ça marche, tarifs, FAQ, CTA), pages `/particuliers`, `/familles`,
+  `/pompes-funebres`, `/fonctionnalites`, `/tarifs`, `/securite`,
+  `/a-propos`, `/contact`, `/demo`, `/login`, `/register`,
+  `/mentions-legales`, `/confidentialite`, `/conditions-utilisation`.
+- Section Guides avec les 10 articles de départ (`/guides`, `/guides/[slug]`),
+  articles liés aux formalités belges marqués comme à vérifier avec des
+  sources officielles avant production.
+- SEO : métadonnées par page, Open Graph, `sitemap.xml` et `robots.txt`
+  générés dynamiquement.
+- **Statistiques d'audience** via Umami (script chargé conditionnellement,
+  aucune donnée personnelle, aucun cookie).
+- Connexion/inscription déléguées à Keycloak (redirection OpenID Connect).
+- Variables `NEXT_PUBLIC_*` ajoutées à `.env.example`.
+
 ## [0.6.0] - 2026-07-01
 
 ### Ajouté
@@ -82,7 +102,8 @@ projet adhère au [Semantic Versioning](https://semver.org/lang/fr/).
 - `.gitignore`, `.editorconfig`, `.nvmrc`, `LICENSE`.
 - README initial et présent CHANGELOG.
 
-[Unreleased]: https://github.com/legacy/legacy/compare/v0.6.0...HEAD
+[Unreleased]: https://github.com/legacy/legacy/compare/v0.7.0...HEAD
+[0.7.0]: https://github.com/legacy/legacy/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/legacy/legacy/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/legacy/legacy/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/legacy/legacy/compare/v0.3.0...v0.4.0
