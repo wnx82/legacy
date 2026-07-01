@@ -7,6 +7,18 @@ projet adhère au [Semantic Versioning](https://semver.org/lang/fr/).
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-07-01
+
+### Ajouté
+
+- Portail professionnel Legacy (`apps/web-pro`) : authentification Keycloak
+  SPA (`keycloak-js`, session obligatoire), tableau de bord avec
+  **statistiques d'usage**, liste et création de dossiers décès, détail de
+  dossier à onglets (aperçu, checklist interactive, documents, famille,
+  notes internes), gestion des collaborateurs, paramètres d'organisation
+  (logo/couleurs), modèles de messages, modèles de checklist, profil
+  utilisateur.
+
 ## [0.7.0] - 2026-07-01
 
 ### Ajouté
@@ -102,7 +114,8 @@ projet adhère au [Semantic Versioning](https://semver.org/lang/fr/).
 - `.gitignore`, `.editorconfig`, `.nvmrc`, `LICENSE`.
 - README initial et présent CHANGELOG.
 
-[Unreleased]: https://github.com/legacy/legacy/compare/v0.7.0...HEAD
+[Unreleased]: https://github.com/legacy/legacy/compare/v0.8.0...HEAD
+[0.8.0]: https://github.com/legacy/legacy/compare/v0.7.0...v0.8.0
 [0.7.0]: https://github.com/legacy/legacy/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/legacy/legacy/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/legacy/legacy/compare/v0.4.0...v0.5.0
