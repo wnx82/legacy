@@ -1,0 +1,21 @@
+{
+  "name": "@legacy/design-system",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Design system Legacy (tokens, préréglage Tailwind, composants React) — sobre, rassurant, accessible.",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "react": "^18.3.1"
+  },
+  "dependencies": {
+    "clsx": "^2.1.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.11",
+    "typescript": "^5.6.3"
+  }
+}
