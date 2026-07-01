@@ -75,7 +75,7 @@ services:
 
   # Crée automatiquement le bucket documentaire au démarrage
   minio-init:
-    image: minio/mc:RELEASE.2024-10-08T09-37-25Z
+    image: minio/mc:latest
     container_name: legacy-minio-init
     depends_on:
       minio:
@@ -103,8 +103,9 @@ services:
       KC_DB_PASSWORD: legacy
       KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN_USER:-admin}
       KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-change_me_keycloak_admin}
-      KC_HOSTNAME: localhost
-      KC_HOSTNAME_PORT: "8080"
+      # Options d'hostname "v2" (Keycloak >= 26) : une URL complète plutôt que
+      # KC_HOSTNAME_PORT (déprécié, cause une erreur de configuration).
+      KC_HOSTNAME: http://localhost:8080
       KC_HOSTNAME_STRICT: "false"
       KC_HTTP_ENABLED: "true"
     volumes:
@@ -162,8 +163,8 @@ services:
   # ---------------------------------------------------------------------------
   api:
     build:
-      context: ../api
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: api/Dockerfile
       target: development
     container_name: legacy-api
     restart: unless-stopped

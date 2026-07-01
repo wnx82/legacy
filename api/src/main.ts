@@ -17,7 +17,7 @@ async function bootstrap() {
     configService.get<string>('WEBSITE_URL'),
     configService.get<string>('WEB_PRO_URL'),
     configService.get<string>('WEB_FAMILY_URL'),
-  ].filter(Boolean);
+  ].filter((origin): origin is string => Boolean(origin));
   app.enableCors({ origin: allowedOrigins, credentials: true });
 
   app.setGlobalPrefix('api', { exclude: ['health'] });

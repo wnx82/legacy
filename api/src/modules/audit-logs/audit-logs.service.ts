@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { AuditResult } from '@legacy/database';
+import { AuditResult, Prisma } from '@legacy/database';
 
 export interface LogAuditEventInput {
   userId?: string;
@@ -37,7 +37,7 @@ export class AuditLogsService {
           result: input.result ?? AuditResult.SUCCESS,
           ipAddress: input.ipAddress,
           userAgent: input.userAgent,
-          details: input.details,
+          details: input.details as Prisma.InputJsonValue | undefined,
         },
       });
     } catch (error) {
