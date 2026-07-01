@@ -15,9 +15,19 @@ export class AuthService {
   constructor(private readonly prisma: PrismaService) {}
 
   async syncUserFromKeycloak(payload: KeycloakTokenPayload): Promise<AuthenticatedUser> {
+    const byKeycloakId = await this.prisma.user.findUnique({ where: { keycloakId: payload.sub } });
+
+    // Un utilisateur peut avoir été pré-provisionné par e-mail (ex: invitation,
+    // données de seed) avant sa toute première connexion Keycloak. Dans ce cas,
+    // on rattache la fiche existante plutôt que d'échouer sur la contrainte
+    // d'unicité de l'e-mail en tentant de créer un doublon.
+    const existingId =
+      byKeycloakId?.id ?? (await this.prisma.user.findUnique({ where: { email: payload.email } }))?.id;
+
     const user = await this.prisma.user.upsert({
-      where: { keycloakId: payload.sub },
+      where: { id: existingId ?? '__none__' },
       update: {
+        keycloakId: payload.sub,
         email: payload.email,
         firstName: payload.given_name ?? undefined,
         lastName: payload.family_name ?? undefined,

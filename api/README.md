@@ -43,6 +43,13 @@ src/
   `passport-jwt`) plutôt qu'une librairie d'intégration Keycloak tierce :
   moins de dépendances, contrôle total sur le mapping rôles/organisation,
   et compatible avec n'importe quel client OpenID Connect (web, Flutter).
+- **`KEYCLOAK_URL` (interne) vs `KEYCLOAK_PUBLIC_URL` (émetteur)** : en
+  Docker, l'API atteint Keycloak via le nom de service interne
+  (`http://keycloak:8080`) pour récupérer les clés JWKS, mais les tokens
+  portent l'URL publique (`http://localhost:8080`, vue du navigateur) dans
+  leur claim `iss`. Sans cette distinction, toute requête authentifiée
+  échoue en 401 dès que l'API tourne dans le même réseau Docker que
+  Keycloak — voir `keycloak.strategy.ts`.
 - **Garde globale (`APP_GUARD`)** : toute route est protégée par défaut ; le
   décorateur `@Public()` doit être utilisé explicitement pour les routes
   ouvertes (`/health`, `/contact`, `/demo-request`). Principe du moindre

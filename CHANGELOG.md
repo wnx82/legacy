@@ -7,6 +7,47 @@ projet adhère au [Semantic Versioning](https://semver.org/lang/fr/).
 
 ## [Unreleased]
 
+## [1.0.2] - 2026-07-01
+
+### Corrigé
+
+Diagnostic « créer un compte et se connecter ne fonctionnent pas », reproduit
+et vérifié de bout en bout avec un navigateur automatisé (Playwright) contre
+la stack Docker complète. Quatre bugs réels trouvés et corrigés :
+
+- **Site public : aucun callback OAuth** — les boutons « Se connecter » /
+  « Créer mon compte » redirigeaient bien vers Keycloak (formulaire
+  fonctionnel), mais après authentification l'utilisateur revenait sur
+  l'accueil avec un `?code=...` jamais échangé contre un token : rien ne se
+  passait. Ajout d'un flux Authorization Code + PKCE complet
+  (`lib/pkce.ts`, `lib/keycloak.ts`), d'une page `/auth/callback` qui
+  échange le code, et d'une page `/compte` confirmant la connexion.
+- **Inscription bloquée sur « Vérifiez votre e-mail »** — le realm exigeait
+  la vérification d'e-mail (`verifyEmail: true`) sans qu'aucun serveur SMTP
+  ne soit configuré : l'e-mail de vérification ne partait jamais. Ajout de
+  la configuration SMTP du realm pointant vers Mailhog
+  (`infra/keycloak/realm-export.json`).
+- **`401 Unauthorized` sur toutes les routes protégées de l'API dès qu'elle
+  tourne en Docker** — bug critique et transversal (affectait le site
+  public, le portail pro et l'espace famille) : l'API validait l'émetteur
+  (`iss`) des tokens contre `KEYCLOAK_URL` (nom de service Docker interne,
+  `http://keycloak:8080`), alors que les tokens émis par Keycloak portent
+  toujours l'URL publique vue du navigateur (`http://localhost:8080`).
+  Ajout de `KEYCLOAK_PUBLIC_URL`, utilisée uniquement pour la validation de
+  l'émetteur, distincte de l'URL utilisée pour récupérer les clés JWKS.
+- **Erreur 500 à la première connexion d'un utilisateur dont l'e-mail
+  existait déjà en base** (ex: l'admin de démonstration du seed) —
+  `AuthService.syncUserFromKeycloak` tentait de créer un nouvel utilisateur
+  et heurtait la contrainte d'unicité sur l'e-mail. La synchronisation
+  recherche désormais aussi par e-mail et rattache la fiche existante à
+  l'identité Keycloak plutôt que d'échouer.
+
+### Documentation
+
+Ajout d'entrées de dépannage dans `docs/installation.md` (infra non
+démarrée, réimport Keycloak après modification de `realm-export.json`,
+401 systématique, vérification d'e-mail via Mailhog).
+
 ## [1.0.1] - 2026-07-01
 
 ### Corrigé
@@ -225,7 +266,8 @@ documentées et exécutables en local. Voir `docs/roadmap.md` pour la suite.
 - `.gitignore`, `.editorconfig`, `.nvmrc`, `LICENSE`.
 - README initial et présent CHANGELOG.
 
-[Unreleased]: https://github.com/legacy/legacy/compare/v1.0.1...HEAD
+[Unreleased]: https://github.com/legacy/legacy/compare/v1.0.2...HEAD
+[1.0.2]: https://github.com/legacy/legacy/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/legacy/legacy/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/legacy/legacy/compare/v0.10.0...v1.0.0
 [0.10.0]: https://github.com/legacy/legacy/compare/v0.9.0...v0.10.0

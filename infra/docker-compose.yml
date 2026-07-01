@@ -174,7 +174,12 @@ services:
       DATABASE_URL: postgresql://legacy:legacy@postgres:5432/legacy?schema=public
       REDIS_URL: redis://redis:6379
       MINIO_ENDPOINT: minio
+      # URL interne (nom de service Docker) pour atteindre Keycloak serveur à
+      # serveur (récupération des clés JWKS). Les tokens portent cependant
+      # l'URL publique dans leur `iss` — voir KEYCLOAK_PUBLIC_URL ci-dessous
+      # et keycloak.strategy.ts.
       KEYCLOAK_URL: http://keycloak:8080
+      KEYCLOAK_PUBLIC_URL: http://localhost:8080
     volumes:
       - ../api:/app/api
       - ../packages:/app/packages
