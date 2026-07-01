@@ -181,9 +181,12 @@ export class DeathCasesService {
   }
 
   // --- Notes ---
-  async listNotes(deathCaseId: string) {
+  async listNotes(deathCaseId: string, options: { onlyFamilyVisible?: boolean } = {}) {
     await this.findOne(deathCaseId);
-    return this.prisma.note.findMany({ where: { deathCaseId }, orderBy: { createdAt: 'desc' } });
+    return this.prisma.note.findMany({
+      where: { deathCaseId, visibility: options.onlyFamilyVisible ? 'FAMILY_VISIBLE' : undefined },
+      orderBy: { createdAt: 'desc' },
+    });
   }
 
   async createNote(deathCaseId: string, dto: CreateNoteDto, authorId: string) {
