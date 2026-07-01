@@ -7,6 +7,26 @@ projet adhère au [Semantic Versioning](https://semver.org/lang/fr/).
 
 ## [Unreleased]
 
+## [0.10.0] - 2026-07-01
+
+### Ajouté
+
+- Application Flutter (`apps/app`), cible Android/iOS/Windows/macOS/Linux :
+  onboarding, connexion/inscription (Keycloak via `flutter_appauth`),
+  tableau de bord, progression du dossier vivant, documents (upload direct
+  MinIO), contacts, volontés, personnes de confiance, patrimoine,
+  assurances, abonnements, animaux, checklist famille, notifications,
+  profil, paramètres, export PDF.
+- Thème Flutter aligné sur les tokens du design system (`lib/theme.dart`).
+- `flutter analyze` sans avertissement, premier test de fumée (`flutter test`).
+
+### Ajouté (API)
+
+- Endpoints `GET/POST /living-profile/assets`, `/insurances`,
+  `/subscriptions`, `/pets` — nécessaires aux modules Patrimoine, Assurances,
+  Abonnements et Animaux (Prisma les modélisait déjà, mais ils manquaient de
+  l'API REST initiale).
+
 ## [0.9.0] - 2026-07-01
 
 ### Ajouté
@@ -132,7 +152,8 @@ projet adhère au [Semantic Versioning](https://semver.org/lang/fr/).
 - `.gitignore`, `.editorconfig`, `.nvmrc`, `LICENSE`.
 - README initial et présent CHANGELOG.
 
-[Unreleased]: https://github.com/legacy/legacy/compare/v0.9.0...HEAD
+[Unreleased]: https://github.com/legacy/legacy/compare/v0.10.0...HEAD
+[0.10.0]: https://github.com/legacy/legacy/compare/v0.9.0...v0.10.0
 [0.9.0]: https://github.com/legacy/legacy/compare/v0.8.0...v0.9.0
 [0.8.0]: https://github.com/legacy/legacy/compare/v0.7.0...v0.8.0
 [0.7.0]: https://github.com/legacy/legacy/compare/v0.6.0...v0.7.0
