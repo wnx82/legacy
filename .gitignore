@@ -1,0 +1,51 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build outputs
+.next/
+out/
+dist/
+build/
+.turbo/
+
+# Environment
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Prisma
+database/prisma/migrations/dev/
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Editors / OS
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+Thumbs.db
+
+# Tests / coverage
+coverage/
+.nyc_output/
+
+# Flutter / Dart
+apps/app/.dart_tool/
+apps/app/.flutter-plugins
+apps/app/.flutter-plugins-dependencies
+apps/app/.packages
+apps/app/build/
+apps/app/ios/Pods/
+apps/app/**/generated_plugin_registrant.*
+
+# Docker volumes data (if bind-mounted locally)
+infra/data/
+
+# Misc
+*.tsbuildinfo
+.eslintcache
