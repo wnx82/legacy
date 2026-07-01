@@ -7,6 +7,17 @@ projet adhère au [Semantic Versioning](https://semver.org/lang/fr/).
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-07-01
+
+### Ajouté
+
+- Package `@legacy/shared` : rôles et statuts typés (miroir des enums
+  Prisma) avec libellés français, constantes (catégories de documents,
+  permissions, avertissements légaux RGPD), DTO validés avec Zod pour les
+  principaux modules (organisations, dossier vivant, dossier décès,
+  checklist, documents, formulaires du site public).
+- Premiers tests unitaires (Vitest) sur les schémas de validation.
+
 ## [0.3.0] - 2026-07-01
 
 ### Ajouté
@@ -45,7 +56,8 @@ projet adhère au [Semantic Versioning](https://semver.org/lang/fr/).
 - `.gitignore`, `.editorconfig`, `.nvmrc`, `LICENSE`.
 - README initial et présent CHANGELOG.
 
-[Unreleased]: https://github.com/legacy/legacy/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/legacy/legacy/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/legacy/legacy/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/legacy/legacy/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/legacy/legacy/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/legacy/legacy/releases/tag/v0.1.0
