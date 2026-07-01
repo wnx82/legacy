@@ -12,6 +12,10 @@ import {
   UpdateContactSchema,
   CreateTrustedPersonSchema,
   RequestUploadUrlSchema,
+  CreateAssetSchema,
+  CreateInsuranceSchema,
+  CreateSubscriptionSchema,
+  CreatePetSchema,
   UserRole,
   type UpdateLivingProfileDto,
   type CreateWishDto,
@@ -20,6 +24,10 @@ import {
   type UpdateContactDto,
   type CreateTrustedPersonDto,
   type RequestUploadUrlDto,
+  type CreateAssetDto,
+  type CreateInsuranceDto,
+  type CreateSubscriptionDto,
+  type CreatePetDto,
   type AuthenticatedUser,
 } from '@legacy/shared';
 
@@ -128,5 +136,48 @@ export class LivingProfileController {
   @Delete('trusted-persons/:id')
   deleteTrustedPerson(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
     return this.livingProfileService.deleteTrustedPerson(user.id, id);
+  }
+
+  @Get('assets')
+  listAssets(@CurrentUser() user: AuthenticatedUser) {
+    return this.livingProfileService.listAssets(user.id);
+  }
+
+  @Post('assets')
+  createAsset(@CurrentUser() user: AuthenticatedUser, @Body(new ZodValidationPipe(CreateAssetSchema)) dto: CreateAssetDto) {
+    return this.livingProfileService.createAsset(user.id, dto);
+  }
+
+  @Get('insurances')
+  listInsurances(@CurrentUser() user: AuthenticatedUser) {
+    return this.livingProfileService.listInsurances(user.id);
+  }
+
+  @Post('insurances')
+  createInsurance(@CurrentUser() user: AuthenticatedUser, @Body(new ZodValidationPipe(CreateInsuranceSchema)) dto: CreateInsuranceDto) {
+    return this.livingProfileService.createInsurance(user.id, dto);
+  }
+
+  @Get('subscriptions')
+  listSubscriptions(@CurrentUser() user: AuthenticatedUser) {
+    return this.livingProfileService.listSubscriptions(user.id);
+  }
+
+  @Post('subscriptions')
+  createSubscription(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body(new ZodValidationPipe(CreateSubscriptionSchema)) dto: CreateSubscriptionDto,
+  ) {
+    return this.livingProfileService.createSubscription(user.id, dto);
+  }
+
+  @Get('pets')
+  listPets(@CurrentUser() user: AuthenticatedUser) {
+    return this.livingProfileService.listPets(user.id);
+  }
+
+  @Post('pets')
+  createPet(@CurrentUser() user: AuthenticatedUser, @Body(new ZodValidationPipe(CreatePetSchema)) dto: CreatePetDto) {
+    return this.livingProfileService.createPet(user.id, dto);
   }
 }

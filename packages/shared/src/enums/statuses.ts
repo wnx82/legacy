@@ -96,6 +96,14 @@ export enum AssetType {
   OTHER = 'OTHER',
 }
 
+export enum InsuranceType {
+  LIFE = 'LIFE',
+  HEALTH = 'HEALTH',
+  HOME = 'HOME',
+  AUTO = 'AUTO',
+  OTHER = 'OTHER',
+}
+
 export enum SubscriptionCategory {
   BANK = 'BANK',
   INSURANCE = 'INSURANCE',

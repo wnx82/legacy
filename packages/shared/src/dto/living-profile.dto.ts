@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { WishCategory, ContactCategory } from '../enums/statuses';
+import { WishCategory, ContactCategory, AssetType, InsuranceType, SubscriptionCategory, SubscriptionAction } from '../enums/statuses';
 
 export const UpdateLivingProfileSchema = z.object({
   birthDate: z.coerce.date().optional(),
@@ -47,3 +47,47 @@ export const CreateTrustedPersonSchema = z.object({
   canActivateAccess: z.boolean().default(false),
 });
 export type CreateTrustedPersonDto = z.infer<typeof CreateTrustedPersonSchema>;
+
+export const CreateAssetSchema = z.object({
+  type: z.nativeEnum(AssetType),
+  name: z.string().min(1).max(150),
+  description: z.string().max(1000).optional(),
+  estimatedValue: z.number().nonnegative().optional(),
+  note: z.string().max(1000).optional(),
+  visibleToFamily: z.boolean().default(false),
+  visibleToPro: z.boolean().default(false),
+});
+export type CreateAssetDto = z.infer<typeof CreateAssetSchema>;
+
+export const CreateInsuranceSchema = z.object({
+  type: z.nativeEnum(InsuranceType),
+  provider: z.string().min(1).max(150),
+  policyNumber: z.string().max(80).optional(),
+  note: z.string().max(1000).optional(),
+  visibleToFamily: z.boolean().default(false),
+  visibleToPro: z.boolean().default(false),
+});
+export type CreateInsuranceDto = z.infer<typeof CreateInsuranceSchema>;
+
+export const CreateSubscriptionSchema = z.object({
+  serviceName: z.string().min(1).max(150),
+  category: z.nativeEnum(SubscriptionCategory),
+  website: z.string().url().optional(),
+  associatedEmail: z.string().email().optional(),
+  instruction: z.string().max(1000).optional(),
+  desiredAction: z.nativeEnum(SubscriptionAction).default(SubscriptionAction.CHECK),
+  note: z.string().max(1000).optional(),
+});
+export type CreateSubscriptionDto = z.infer<typeof CreateSubscriptionSchema>;
+
+export const CreatePetSchema = z.object({
+  name: z.string().min(1).max(80),
+  species: z.string().min(1).max(80),
+  breed: z.string().max(80).optional(),
+  age: z.number().int().nonnegative().optional(),
+  veterinarian: z.string().max(150).optional(),
+  diet: z.string().max(500).optional(),
+  treatment: z.string().max(500).optional(),
+  instructions: z.string().max(1000).optional(),
+});
+export type CreatePetDto = z.infer<typeof CreatePetSchema>;

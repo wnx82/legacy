@@ -9,6 +9,10 @@ import type {
   UpdateContactDto,
   CreateTrustedPersonDto,
   RequestUploadUrlDto,
+  CreateAssetDto,
+  CreateInsuranceDto,
+  CreateSubscriptionDto,
+  CreatePetDto,
 } from '@legacy/shared';
 
 /**
@@ -171,5 +175,49 @@ export class LivingProfileService {
     if (!trustedPerson) throw new NotFoundException('Personne de confiance introuvable');
     await this.prisma.trustedPerson.delete({ where: { id: trustedPersonId } });
     return { success: true };
+  }
+
+  // --- Patrimoine ---
+  async listAssets(userId: string) {
+    const profile = await this.getOrCreate(userId);
+    return this.prisma.asset.findMany({ where: { livingProfileId: profile.id } });
+  }
+
+  async createAsset(userId: string, dto: CreateAssetDto) {
+    const profile = await this.getOrCreate(userId);
+    return this.prisma.asset.create({ data: { ...dto, livingProfileId: profile.id } });
+  }
+
+  // --- Assurances ---
+  async listInsurances(userId: string) {
+    const profile = await this.getOrCreate(userId);
+    return this.prisma.insurance.findMany({ where: { livingProfileId: profile.id } });
+  }
+
+  async createInsurance(userId: string, dto: CreateInsuranceDto) {
+    const profile = await this.getOrCreate(userId);
+    return this.prisma.insurance.create({ data: { ...dto, livingProfileId: profile.id } });
+  }
+
+  // --- Abonnements ---
+  async listSubscriptions(userId: string) {
+    const profile = await this.getOrCreate(userId);
+    return this.prisma.subscription.findMany({ where: { livingProfileId: profile.id } });
+  }
+
+  async createSubscription(userId: string, dto: CreateSubscriptionDto) {
+    const profile = await this.getOrCreate(userId);
+    return this.prisma.subscription.create({ data: { ...dto, livingProfileId: profile.id } });
+  }
+
+  // --- Animaux ---
+  async listPets(userId: string) {
+    const profile = await this.getOrCreate(userId);
+    return this.prisma.pet.findMany({ where: { livingProfileId: profile.id } });
+  }
+
+  async createPet(userId: string, dto: CreatePetDto) {
+    const profile = await this.getOrCreate(userId);
+    return this.prisma.pet.create({ data: { ...dto, livingProfileId: profile.id } });
   }
 }
