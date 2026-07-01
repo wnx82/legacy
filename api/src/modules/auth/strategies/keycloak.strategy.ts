@@ -28,6 +28,14 @@ export class KeycloakStrategy extends PassportStrategy(Strategy, 'jwt') {
   ) {
     const keycloakUrl = configService.getOrThrow<string>('KEYCLOAK_URL');
     const realm = configService.getOrThrow<string>('KEYCLOAK_REALM');
+    // KEYCLOAK_URL est l'URL interne (ex: http://keycloak:8080 dans Docker),
+    // utilisée pour récupérer les clés JWKS depuis le serveur. Mais les tokens
+    // émis par Keycloak portent l'URL *publique* (celle vue par le navigateur,
+    // ex: http://localhost:8080) dans leur claim `iss` — les deux diffèrent
+    // dès que l'API et Keycloak communiquent via un nom d'hôte Docker interne.
+    // KEYCLOAK_PUBLIC_URL permet de valider l'émetteur séparément de l'URL
+    // utilisée pour la récupération des clés.
+    const keycloakPublicUrl = configService.get<string>('KEYCLOAK_PUBLIC_URL') ?? keycloakUrl;
 
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -38,7 +46,7 @@ export class KeycloakStrategy extends PassportStrategy(Strategy, 'jwt') {
         jwksRequestsPerMinute: 5,
         jwksUri: `${keycloakUrl}/realms/${realm}/protocol/openid-connect/certs`,
       }),
-      issuer: `${keycloakUrl}/realms/${realm}`,
+      issuer: `${keycloakPublicUrl}/realms/${realm}`,
       algorithms: ['RS256'],
     });
   }

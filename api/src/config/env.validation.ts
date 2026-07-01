@@ -11,6 +11,11 @@ export const envSchema = z.object({
   MINIO_SECRET_KEY: z.string().min(1),
   MINIO_BUCKET: z.string().min(1),
   KEYCLOAK_URL: z.string().min(1),
+  // URL publique (vue du navigateur) du realm Keycloak, utilisée pour valider
+  // le claim `iss` des tokens — diffère de KEYCLOAK_URL dès que l'API atteint
+  // Keycloak via un nom d'hôte interne (ex: Docker). Retombe sur KEYCLOAK_URL
+  // si absente (cas du développement sans Docker, où les deux URLs sont identiques).
+  KEYCLOAK_PUBLIC_URL: z.string().min(1).optional(),
   KEYCLOAK_REALM: z.string().min(1),
   KEYCLOAK_CLIENT_ID: z.string().min(1),
   KEYCLOAK_CLIENT_SECRET: z.string().min(1),

@@ -118,10 +118,31 @@ cd apps/app && flutter test           # app Flutter
 
 ## Problèmes fréquents
 
+- **`Can't reach database server at localhost:5432`** : l'infrastructure
+  Docker n'est pas démarrée (ou pas encore prête). Toujours lancer
+  `pnpm infra:up` **avant** `pnpm dev`, et attendre que `docker compose -f
+  infra/docker-compose.yml ps` affiche `postgres` en `healthy`.
 - **Keycloak met du temps à démarrer** : `start-dev --import-realm` importe
   le realm à chaque démarrage sans volume dédié ; attendre le log
   `Keycloak ... started`.
+- **Keycloak n'applique pas mes changements de `realm-export.json`** :
+  l'import utilise la stratégie `IGNORE_EXISTING` — une fois le realm créé
+  en base, les imports suivants sont ignorés. Pour forcer une réimportation
+  propre après une modification : arrêter la stack, supprimer le volume
+  `legacy_postgres_data` (ou juste la base `keycloak` :
+  `docker exec legacy-postgres psql -U legacy -d legacy -c "DROP DATABASE keycloak;" && docker exec legacy-postgres psql -U legacy -d legacy -c "CREATE DATABASE keycloak;"`),
+  puis redémarrer Keycloak.
 - **`pnpm dev` échoue sur les apps Next.js** : vérifier que les fichiers
   `.env.local` de chaque app existent (voir étape 2).
 - **Erreur Prisma "Client not generated"** : lancer `pnpm db:generate`
   après tout changement de `database/prisma/schema.prisma`.
+- **`401 Unauthorized` sur toutes les routes protégées de l'API alors que
+  la connexion Keycloak a réussi** : vérifier que `KEYCLOAK_PUBLIC_URL` est
+  bien définie (URL vue par le navigateur, ex: `http://localhost:8080`).
+  L'API valide l'émetteur (`iss`) des tokens contre cette URL, qui diffère
+  de `KEYCLOAK_URL` dès que l'API atteint Keycloak via un nom d'hôte Docker
+  interne (`http://keycloak:8080`) — voir `keycloak.strategy.ts`.
+- **Création de compte bloquée sur « Vérifiez votre e-mail »** : en local,
+  les e-mails (dont la vérification d'adresse) sont capturés par Mailhog,
+  jamais réellement envoyés. Ouvrir http://localhost:8025 pour consulter
+  l'e-mail de vérification et cliquer sur le lien.
