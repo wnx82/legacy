@@ -7,6 +7,16 @@ projet adhère au [Semantic Versioning](https://semver.org/lang/fr/).
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-07-01
+
+### Ajouté
+
+- Package `@legacy/design-system` : tokens de couleurs/espacements/typographie
+  sobres et rassurants, préréglage Tailwind partagé, composants React
+  (Button, Card, Badge, Alert, ProgressBar, EmptyState, Skeleton,
+  Breadcrumbs, Toast, Timeline, ChecklistItem, FileUpload, Modal, Header,
+  Footer, Sidebar).
+
 ## [0.5.0] - 2026-07-01
 
 ### Ajouté
@@ -72,7 +82,8 @@ projet adhère au [Semantic Versioning](https://semver.org/lang/fr/).
 - `.gitignore`, `.editorconfig`, `.nvmrc`, `LICENSE`.
 - README initial et présent CHANGELOG.
 
-[Unreleased]: https://github.com/legacy/legacy/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/legacy/legacy/compare/v0.6.0...HEAD
+[0.6.0]: https://github.com/legacy/legacy/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/legacy/legacy/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/legacy/legacy/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/legacy/legacy/compare/v0.2.0...v0.3.0
