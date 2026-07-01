@@ -7,6 +7,24 @@ projet adhère au [Semantic Versioning](https://semver.org/lang/fr/).
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-07-01
+
+### Ajouté
+
+- Espace famille Legacy (`apps/web-family`) : authentification Keycloak,
+  accueil avec résumé des démarches, checklist visible par la famille,
+  envoi de documents (upload direct MinIO), messages de la pompe funèbre,
+  pages contacts utiles et volontés partagées, export PDF, profil invité.
+- `.env.local.example` ajouté dans `apps/website`, `apps/web-pro` et
+  `apps/web-family` (chaque client OpenID Connect Keycloak est propre à
+  son application).
+
+### Corrigé
+
+- API : `GET /death-cases/:id/notes` est désormais accessible aux membres de
+  la famille, filtré aux notes `FAMILY_VISIBLE` (auparavant réservé aux
+  seuls professionnels, ce qui bloquait la messagerie côté espace famille).
+
 ## [0.8.0] - 2026-07-01
 
 ### Ajouté
@@ -114,7 +132,8 @@ projet adhère au [Semantic Versioning](https://semver.org/lang/fr/).
 - `.gitignore`, `.editorconfig`, `.nvmrc`, `LICENSE`.
 - README initial et présent CHANGELOG.
 
-[Unreleased]: https://github.com/legacy/legacy/compare/v0.8.0...HEAD
+[Unreleased]: https://github.com/legacy/legacy/compare/v0.9.0...HEAD
+[0.9.0]: https://github.com/legacy/legacy/compare/v0.8.0...v0.9.0
 [0.8.0]: https://github.com/legacy/legacy/compare/v0.7.0...v0.8.0
 [0.7.0]: https://github.com/legacy/legacy/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/legacy/legacy/compare/v0.5.0...v0.6.0

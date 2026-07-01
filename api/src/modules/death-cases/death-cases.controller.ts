@@ -111,9 +111,10 @@ export class DeathCasesController {
   }
 
   @Get(':id/notes')
-  @Roles(...PRO_ROLES)
-  listNotes(@Param('id') id: string) {
-    return this.deathCasesService.listNotes(id);
+  @Roles(...PRO_ROLES, UserRole.FAMILY_MEMBER)
+  listNotes(@Param('id') id: string, @CurrentUser() user: AuthenticatedUser) {
+    const isProUser = user.roles.some((role) => PRO_ROLES.includes(role as UserRole));
+    return this.deathCasesService.listNotes(id, { onlyFamilyVisible: !isProUser });
   }
 
   @Post(':id/notes')

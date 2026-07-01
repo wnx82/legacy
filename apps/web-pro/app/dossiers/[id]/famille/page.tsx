@@ -68,6 +68,11 @@ export default function DossierFamillePage({ params }: { params: { id: string } 
         <Button type="submit">Inviter</Button>
       </form>
 
+      <p className="mt-3 text-xs text-gray-400">
+        Lien d'accès à partager une fois l'invitation acceptée :{' '}
+        {(process.env.NEXT_PUBLIC_WEB_FAMILY_URL ?? 'http://localhost:3003') + `/?dossier=${params.id}`}
+      </p>
+
       <div className="mt-6">
         {invites.length === 0 ? (
           <EmptyState title="Aucun proche invité pour le moment" />
