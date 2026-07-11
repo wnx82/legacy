@@ -62,11 +62,12 @@ complémentaire à [`docs/roadmap.md`](docs/roadmap.md).
   Le service existe et certaines actions journalisent déjà :
   [`api/src/modules/audit-logs/audit-logs.service.ts`](api/src/modules/audit-logs/audit-logs.service.ts).
 
-- [ ] L'export RGPD complet et la suppression de compte en cascade ne sont pas
-  implémentés.
-  Les types/enums existent, mais pas le traitement complet :
+- [x] Export RGPD complet + suppression de compte en cascade. **(fait — `feat/rgpd-and-account-deletion`)**
+  `POST /exports/rgpd` (JSON complet via `RgpdExportProcessor`) et
+  `DELETE /accounts/me` (cascade dossier vivant + purge MinIO + anonymisation).
+  Action manuelle restante : désactivation Keycloak.
   [`docs/rgpd.md`](docs/rgpd.md),
-  [`api/src/modules/exports/exports.service.ts`](api/src/modules/exports/exports.service.ts).
+  [`api/src/modules/accounts/`](api/src/modules/accounts/).
 
 - [ ] Le scan antivirus des documents uploadés n'est pas présent.
 
