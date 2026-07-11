@@ -7,6 +7,27 @@ projet adhère au [Semantic Versioning](https://semver.org/lang/fr/).
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-07-12
+
+Ajout de l'exposition de version au runtime et de la vérification de mise à jour
+GitHub, plus la discipline de versioning (`feat/version-widget`).
+
+### Ajouté
+
+- **`GET /api/version`** (public) — renvoie la version du conteneur
+  (`APP_VERSION` injectée au déploiement, sinon `package.json` racine).
+- **`GET /api/version-check`** (`SUPER_ADMIN`) — compare la version locale à la
+  dernière version publiée sur GitHub (API *Contents*), sans jamais exposer le
+  `GITHUB_TOKEN` au navigateur. Nouveau module NestJS `version/` couvert par des
+  tests unitaires (comparaison semver, cas non configuré, non-fuite du token).
+- **`VersionWidget`** (`apps/web-pro`) — carte de tableau de bord (variantes
+  `full` / `compact`) avec badge « à jour » / « mise à jour disponible » et
+  bouton *Rafraîchir* ; repli propre sur `/version` pour les rôles non-admin.
+- **Discipline de versioning** — `scripts/update-readme-version.js` et scripts
+  `bump:patch` / `bump:minor` / `bump:major` ; documentation `docs/versioning.md`.
+- **`.env.example`** — variables `APP_VERSION`, `GITHUB_TOKEN`, `GITHUB_REPO`,
+  `GITHUB_BRANCH` (placeholders uniquement).
+
 ## [1.1.0] - 2026-07-11
 
 Finalisation de la plateforme : toutes les tâches de `todo.md` traitées,

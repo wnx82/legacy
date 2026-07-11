@@ -21,6 +21,7 @@ import { AccessGrantsModule } from './modules/access-grants/access-grants.module
 import { AccountsModule } from './modules/accounts/accounts.module';
 import { StatsModule } from './modules/stats/stats.module';
 import { SiteModule } from './modules/site/site.module';
+import { VersionModule } from './modules/version/version.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
@@ -57,6 +58,7 @@ import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
     AccountsModule,
     StatsModule,
     SiteModule,
+    VersionModule,
   ],
   controllers: [AppController],
   providers: [

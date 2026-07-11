@@ -37,6 +37,14 @@ export const envSchema = z.object({
   CLAMAV_HOST: z.string().optional(),
   CLAMAV_PORT: z.coerce.number().default(3310),
   LOG_LEVEL: z.enum(['debug', 'info', 'warn', 'error']).default('debug'),
+  // Version & vérification de mise à jour. APP_VERSION est injectée au
+  // build/déploiement (Komodo) ; à défaut, la version du package.json racine
+  // est lue au démarrage. GITHUB_* servent uniquement côté serveur à comparer
+  // la version locale à la dernière version publiée (aucun secret exposé au client).
+  APP_VERSION: z.string().optional(),
+  GITHUB_TOKEN: z.string().optional(),
+  GITHUB_REPO: z.string().optional(),
+  GITHUB_BRANCH: z.string().default('main'),
 });
 
 export type EnvConfig = z.infer<typeof envSchema>;
