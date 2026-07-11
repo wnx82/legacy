@@ -50,11 +50,12 @@ complémentaire à [`docs/roadmap.md`](docs/roadmap.md).
   audit, `GET ?livingProfileId=` et `GET /mine`.
   [`api/src/modules/access-grants/`](api/src/modules/access-grants/).
 
-- [ ] Les `Role` / `Permission` existent au niveau modèle et constantes
-  partagées, mais pas de gestion avancée visible côté produit ni de
-  permissions fines appliquées partout :
-  [`packages/shared/src/constants/permissions.ts`](packages/shared/src/constants/permissions.ts),
-  [`database/prisma/schema.prisma`](database/prisma/schema.prisma).
+- [x] `Role` / `Permission` : catalogue alimenté + périmètre clarifié. **(fait — `refactor/rbac-permission-catalog`)**
+  Les 12 permissions fines sont désormais **semées** et prêtes à composer des
+  rôles personnalisés. **Périmètre assumé** : l'UI de composition de rôles reste
+  un chantier ultérieur ; les décisions d'accès sensibles s'appuient sur les
+  rôles plateforme (refus par défaut), donc sans dépendance à cette UI.
+  Justification et détails : [`docs/security.md`](docs/security.md) (RBAC à deux niveaux).
 
 - [x] Audit logs : couverture élargie + tableau de bord dédié. **(fait — `feat/audit-coverage`)**
   `GET /audit-logs/summary` (agrégats) + page « Journal d'audit » du portail pro.

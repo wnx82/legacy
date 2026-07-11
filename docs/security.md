@@ -20,6 +20,17 @@ exigence de premier ordre, pas comme une option.
 - **Séparation stricte des organisations** : toutes les requêtes scoping
   par `organizationId` sont vérifiées côté service (voir
   `organizations.service.ts`, `death-cases.service.ts`).
+- **RBAC à deux niveaux :**
+  1. **Rôles plateforme** (7 rôles de base) : appliqués partout et faisant
+     autorité pour les décisions d'accès (`@Roles`, `assertCanAccessDeathCase`,
+     `assertCanManage` sur les `AccessGrant`).
+  2. **Permissions fines** (`Role`/`Permission` par organisation) : le
+     **catalogue de 12 permissions est désormais alimenté au seed**
+     (`death_case.read`, `document.download`, `export.create`, …) et prêt à
+     être associé à des rôles personnalisés. **Périmètre assumé** : l'interface
+     de composition de rôles personnalisés côté produit reste un chantier
+     ultérieur ; les décisions d'accès sensibles restent portées par les rôles
+     plateforme (refus par défaut), ce qui ne dépend pas de la gestion fine.
 
 ## Documents
 
