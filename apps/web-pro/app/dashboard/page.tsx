@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Card, CardTitle, CardDescription, Button, Skeleton } from '@legacy/design-system';
 import { useApiClient } from '../../lib/api-client';
 import { useCurrentUser } from '../../lib/use-current-user';
+import { VersionWidget } from '../../components/VersionWidget';
 
 interface OrganizationStats {
   deathCasesByStatus: Record<string, number>;
@@ -85,6 +86,10 @@ export default function DashboardPage() {
             </Link>
           </div>
         </Card>
+      </div>
+
+      <div className="mt-6 grid gap-6 lg:grid-cols-2">
+        <VersionWidget variant="full" />
       </div>
     </div>
   );

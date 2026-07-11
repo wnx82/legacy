@@ -16,7 +16,7 @@ l'avertissement légal complet et la vision produit dans
 
 ## Statut du projet
 
-✅ Version **1.1.0** — campagne de finalisation. Toutes les tâches de
+✅ Version **1.2.0** — campagne de finalisation. Toutes les tâches de
 [`todo.md`](todo.md) sont traitées : exports PDF/ZIP réels, invitations famille
 par e-mail, partage sécurisé des données du défunt, workflow d'accès après décès
 (`AccessGrant`), export RGPD + suppression de compte, scan antivirus des
