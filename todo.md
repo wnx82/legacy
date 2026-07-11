@@ -36,12 +36,12 @@ complémentaire à [`docs/roadmap.md`](docs/roadmap.md).
   [`apps/app/lib/services/auth_service.dart`](apps/app/lib/services/auth_service.dart),
   [`apps/app/README.md`](apps/app/README.md).
 
-- [ ] Vérifier et dater les formalités belges par défaut avec des sources
-  officielles.
-  Le seed et les guides contiennent déjà l'avertissement disant que la
-  vérification reste à faire :
+- [x] Vérifier et dater les formalités belges par défaut. **(fait — 2026-07-11)**
+  Checklist et guides revus sur belgium.be, notaire.be, SPF Finances ;
+  descriptions + délais légaux ajoutés ; sources et date dans `docs/product.md`.
+  Seed vérifié (exécution OK). Redater à chaque révision.
   [`database/seed/seed.ts`](database/seed/seed.ts),
-  [`apps/website/lib/content/guides.ts`](apps/website/lib/content/guides.ts).
+  [`docs/product.md`](docs/product.md).
 
 ## Partiellement en place, mais pas réellement terminés
 
