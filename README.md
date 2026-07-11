@@ -16,11 +16,17 @@ l'avertissement légal complet et la vision produit dans
 
 ## Statut du projet
 
-✅ MVP scaffold complet — version **1.0.3**. Toutes les briques listées dans
-le cahier des charges sont en place et exécutables en local (voir
-[CHANGELOG](CHANGELOG.md) pour le détail de chaque étape/version, et
-[`docs/roadmap.md`](docs/roadmap.md) pour ce qui reste à finaliser avant une
-mise en production réelle).
+✅ Version **1.1.0** — campagne de finalisation. Toutes les tâches de
+[`todo.md`](todo.md) sont traitées : exports PDF/ZIP réels, invitations famille
+par e-mail, partage sécurisé des données du défunt, workflow d'accès après décès
+(`AccessGrant`), export RGPD + suppression de compte, scan antivirus des
+documents, sauvegardes chiffrées, tableau de bord d'audit, durcissement sécurité
+(en-têtes, anti-IDOR, anti-spam), et auth OIDC desktop de l'app Flutter.
+
+Voir [CHANGELOG](CHANGELOG.md) pour le détail par version, le rapport
+[`docs/AUDIT_FINAL.md`](docs/AUDIT_FINAL.md) pour l'audit complet et les scores,
+et [`docs/roadmap.md`](docs/roadmap.md) pour ce qui reste (montée majeure des
+dépendances, déploiement, e2e sur stack complète).
 
 ## Démarrage rapide
 
@@ -135,6 +141,8 @@ La documentation complète se trouve dans [`/docs`](docs) :
 - [`installation.md`](docs/installation.md) — lancement en local, pas à pas
 - [`security.md`](docs/security.md) — sécurité (auth, documents, audit)
 - [`rgpd.md`](docs/rgpd.md) — conformité RGPD
+- [`backup.md`](docs/backup.md) — sauvegardes chiffrées et restauration
+- [`AUDIT_FINAL.md`](docs/AUDIT_FINAL.md) — rapport d'audit final et scores
 - [`roadmap.md`](docs/roadmap.md) — roadmap en 4 phases
 - [`api.md`](docs/api.md) — API REST (voir aussi Swagger en local)
 - [`product.md`](docs/product.md) — vision produit, ton, rôles, avertissement légal

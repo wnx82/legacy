@@ -7,6 +7,16 @@ projet adhère au [Semantic Versioning](https://semver.org/lang/fr/).
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-07-11
+
+Finalisation de la plateforme : toutes les tâches de `todo.md` traitées,
+durcissement sécurité, RGPD, sauvegardes, audit. Voir `docs/AUDIT_FINAL.md`
+pour le rapport d'audit complet et les scores (global pondéré : 81,9/100).
+
+**Migration incluse :** `20260711151147_add_document_scan_status`
+(colonnes `Document.scanStatus` + `scannedAt`). Appliquer avec
+`pnpm --filter @legacy/database prisma:migrate:deploy`.
+
 ### Sécurité (dépendances)
 
 - **Mise à jour `nodemailer` 6 → 7** (`security/dependency-updates`, 2026-07-11)
