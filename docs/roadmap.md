@@ -16,34 +16,37 @@ Livré dans ce scaffold initial (versions 0.1.0 à 1.0.0, voir `CHANGELOG.md`) :
 - [x] Export PDF (déclenchement asynchrone — rendu réel à finaliser).
 - [x] Docker Compose complet et documentation d'installation locale.
 
-Restant à finaliser avant un usage réel (dette technique assumée du MVP) :
+Finalisé lors de la campagne 1.1.0 (2026-07-11, voir `CHANGELOG.md` et
+`docs/AUDIT_FINAL.md`) :
 
-- [ ] Rendu réel des PDF/ZIP dans les processeurs BullMQ
-      (`api/src/modules/queue/processors/`).
-- [ ] Flux d'invitation famille par e-mail (actuellement : lien avec
-      `?dossier=<id>` à transmettre manuellement).
-- [ ] Endpoint exposant les contacts/volontés du dossier vivant du défunt à
-      la famille d'un dossier décès lié.
-- [ ] Authentification OpenID Connect desktop pour l'app Flutter (Windows/
-      macOS/Linux).
-- [ ] Vérification des formalités belges de la checklist par défaut et des
-      guides avec des sources officielles (SPF Intérieur, communes, notaire.be).
+- [x] Rendu réel des PDF/ZIP dans les processeurs BullMQ (pdfkit + archiver).
+- [x] Flux d'invitation famille par e-mail (jeton fort, endpoints resolve/accept).
+- [x] Endpoints exposant les contacts/volontés du défunt à la famille (sécurisés).
+- [x] Authentification OpenID Connect desktop pour l'app Flutter (loopback PKCE) —
+      code complet, exécution à vérifier sur machine équipée du SDK.
+- [x] Vérification et datation des formalités belges (belgium.be, notaire.be,
+      SPF Finances) — voir `docs/product.md`.
 
 ## Phase 2 — Sécurité avancée
+
+Livré en 1.1.0 :
+
+- [x] Activation/validation réelle des accès après décès (`AccessGrant`) :
+      endpoints, notifications, révocation.
+- [x] Sauvegardes chiffrées automatisées (PostgreSQL + MinIO) — `infra/scripts/`.
+- [x] Export RGPD complet et suppression de compte en cascade.
+- [x] Scan antivirus des documents uploadés (clamd) + checksum SHA-256 réel.
+- [x] Audit logs élargis + tableau de bord d'audit (`GET /audit-logs/summary`,
+      page « Journal d'audit »).
+- [x] Catalogue de permissions fines semé (`Role`/`Permission`).
+
+Restant :
 
 - [ ] Chiffrement applicatif renforcé des champs les plus sensibles
       (ex: numéro de registre national).
 - [ ] 2FA complet et éprouvé en conditions réelles (tests de bout en bout).
-- [ ] Audit logs détaillés (couverture complète de toutes les actions
-      sensibles listées dans `security.md`, tableaux de bord d'audit).
-- [ ] Activation/validation réelle des accès après décès (`AccessGrant`) :
-      endpoints, notifications, révocation.
-- [ ] Sauvegardes chiffrées automatisées (PostgreSQL + MinIO).
-- [ ] Export RGPD complet (toutes les données d'un utilisateur, format
-      structuré) et suppression de compte en cascade.
-- [ ] Gestion avancée des permissions (`Role`/`Permission` déjà modélisés,
-      UI de configuration à construire côté portail pro).
-- [ ] Scan antivirus des documents uploadés.
+- [ ] UI de composition des rôles personnalisés côté portail pro (le catalogue
+      de permissions est déjà alimenté).
 
 ## Phase 3 — Produit commercial
 
