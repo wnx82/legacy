@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Client as MinioClient } from 'minio';
 import { randomUUID } from 'node:crypto';
+import type { Readable } from 'node:stream';
 
 @Injectable()
 export class StorageService {
@@ -35,5 +36,19 @@ export class StorageService {
 
   async removeObject(objectKey: string): Promise<void> {
     await this.client.removeObject(this.bucket, objectKey);
+  }
+
+  /** Dépose un objet (buffer ou flux) — utilisé par les workers d'export. */
+  async putObject(
+    objectKey: string,
+    body: Buffer | Readable,
+    metadata?: Record<string, string>,
+  ): Promise<void> {
+    await this.client.putObject(this.bucket, objectKey, body, undefined, metadata);
+  }
+
+  /** Récupère un objet sous forme de flux lisible — utilisé pour l'archivage ZIP. */
+  async getObjectStream(objectKey: string): Promise<Readable> {
+    return this.client.getObject(this.bucket, objectKey);
   }
 }

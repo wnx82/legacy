@@ -24,7 +24,12 @@ export class ExportsController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.exportsService.findOne(id);
+  findOne(@Param('id') id: string, @CurrentUser() user: AuthenticatedUser) {
+    return this.exportsService.findOne(id, user.id);
+  }
+
+  @Get(':id/download')
+  getResultUrl(@Param('id') id: string, @CurrentUser() user: AuthenticatedUser) {
+    return this.exportsService.getResultUrl(id, user.id);
   }
 }
