@@ -57,14 +57,32 @@ Règles concrètes appliquées dans le code :
 La checklist belge par défaut (`database/seed/seed.ts`,
 `BELGIAN_DEFAULT_CHECKLIST`) et les guides du site public liés aux
 formalités (`apps/website/lib/content/guides.ts`, champ
-`requiresOfficialVerification: true`) sont des **contenus de départ**, pas
-des sources faisant foi. Avant toute mise en production :
+`requiresOfficialVerification: true`) restent des **contenus de guidage**,
+pas un avis juridique se substituant à un notaire ou à la commune.
 
-1. Faire vérifier chaque étape par une source officielle (SPF Intérieur,
-   commune, notaire.be) ou un professionnel du secteur funéraire.
-2. Dater et versionner cette vérification (les formalités évoluent).
-3. Prévoir un processus de mise à jour récurrent (les délais et documents
-   requis peuvent changer réglementairement).
+### Vérification effectuée
+
+- **Date de vérification : 2026-07-11.**
+- **Sources officielles consultées :**
+  - [belgium.be — Famille > Décès > Déclaration](https://www.belgium.be/fr/famille/deces/declaration)
+  - [notaire.be — Procédure après décès](https://www.notaire.be/heritage-et-donations/heritage/procedure-apres-deces)
+    et [Déclaration de succession](https://www.notaire.be/heritage-et-donations/heritage/procedure-apres-deces/la-declaration-de-succession)
+  - [SPF Finances — Déposer une déclaration de succession](https://fin.belgium.be/en/private-individuals/death/declaration-estate)
+- **Faits datés et sourcés intégrés :** déclaration du décès au plus vite à la
+  commune du lieu de décès (souvent via la pompe funèbre) ; acte de décès dressé
+  par cette commune puis transmis à la commune de résidence ; **déclaration de
+  succession dans les 4 mois** (décès en Belgique — 5 mois ailleurs en Europe,
+  6 mois hors Europe) ; **paiement des droits de succession dans les 6 mois**
+  (décès en Belgique). Chaque item de la checklist porte désormais une
+  `description` rappelant l'autorité compétente et, le cas échéant, le délai.
+
+### À maintenir
+
+1. Les délais cités valent pour un décès **survenu en Belgique** ; confirmer les
+   variantes régionales/communales avec la commune ou un professionnel.
+2. **Redater** cette vérification à chaque révision (les formalités évoluent).
+3. Prévoir un processus de mise à jour récurrent (délais et documents requis
+   peuvent changer réglementairement).
 
 ## Rôles utilisateurs
 

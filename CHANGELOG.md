@@ -7,6 +7,16 @@ projet adhère au [Semantic Versioning](https://semver.org/lang/fr/).
 
 ## [Unreleased]
 
+### Modifié
+
+- **Formalités belges vérifiées et datées** (`docs/formalities-verification`,
+  2026-07-11, Europe/Brussels). La checklist par défaut (`seed.ts`) et les
+  guides publics ont été revus sur les portails officiels (belgium.be,
+  notaire.be, SPF Finances). Chaque item porte une `description` avec l'autorité
+  compétente et le délai légal (déclaration de succession 4 mois, paiement des
+  droits 6 mois pour un décès en Belgique). `docs/product.md` documente la date
+  et les sources. Seed vérifié (exécution OK).
+
 ### Ajouté
 
 - **Sauvegardes chiffrées et restauration** (`ops/backups`, 2026-07-11,

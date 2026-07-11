@@ -7,10 +7,11 @@ export interface Guide {
 }
 
 /**
- * Contenu éditorial de départ. Les articles concernant les formalités
- * belges (marqués `requiresOfficialVerification`) DOIVENT être vérifiés
- * avec des sources officielles (SPF Intérieur, commune, notaire.be) avant
- * toute mise en production — voir docs/product.md.
+ * Contenu éditorial. Les articles marqués `requiresOfficialVerification`
+ * portent sur des formalités belges : ils ont été revus le 2026-07-11 sur les
+ * portails officiels (belgium.be, notaire.be, SPF Finances). Les délais légaux
+ * cités sont ceux d'un décès survenu en Belgique ; comme les formalités
+ * évoluent, redater cette vérification à chaque révision — voir docs/product.md.
  */
 export const GUIDES: Guide[] = [
   {
