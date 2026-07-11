@@ -221,6 +221,13 @@ enum AccessGrantStatus {
   EXPIRED
 }
 
+enum DocumentScanStatus {
+  PENDING   // upload confirmé, en attente de vérification
+  CLEAN     // checksum recalculé et (si activé) scan antivirus OK
+  INFECTED  // menace détectée — objet purgé, document neutralisé
+  SKIPPED   // aucun antivirus configuré (checksum recalculé quand même)
+}
+
 enum AccessActivationReason {
   DEATH_CERTIFICATE
   MANUAL_TRUSTED_PERSON
@@ -592,6 +599,8 @@ model Document {
   sizeBytes       Int
   storageKey      String            @unique // clé objet MinIO
   checksumSha256  String
+  scanStatus      DocumentScanStatus @default(PENDING)
+  scannedAt       DateTime?
   isEncrypted     Boolean           @default(true)
   uploadedById    String
   uploadedBy      User              @relation(fields: [uploadedById], references: [id])

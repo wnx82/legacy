@@ -32,6 +32,10 @@ export const envSchema = z.object({
   SMTP_FROM: z.string().min(1),
   RATE_LIMIT_MAX: z.coerce.number().default(100),
   RATE_LIMIT_WINDOW_MS: z.coerce.number().default(60000),
+  // Antivirus (ClamAV/clamd) optionnel. Si CLAMAV_HOST est absent, le scan est
+  // ignoré (statut SKIPPED) mais le checksum SHA-256 est tout de même recalculé.
+  CLAMAV_HOST: z.string().optional(),
+  CLAMAV_PORT: z.coerce.number().default(3310),
   LOG_LEVEL: z.enum(['debug', 'info', 'warn', 'error']).default('debug'),
 });
 

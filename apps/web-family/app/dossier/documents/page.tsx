@@ -38,13 +38,18 @@ export default function FamilleDocumentsPage() {
   async function handleFiles(files: FileList) {
     if (!caseId) return;
     const file = files[0];
-    const { uploadUrl } = await api.post<{ uploadUrl: string }>(`/death-cases/${caseId}/documents`, {
-      filename: file.name,
-      mimeType: file.type || 'application/pdf',
-      sizeBytes: file.size,
-      categoryKey: category,
-    });
+    const { uploadUrl, document } = await api.post<{ uploadUrl: string; document: { id: string } }>(
+      `/death-cases/${caseId}/documents`,
+      {
+        filename: file.name,
+        mimeType: file.type || 'application/pdf',
+        sizeBytes: file.size,
+        categoryKey: category,
+      },
+    );
     await fetch(uploadUrl, { method: 'PUT', body: file, headers: { 'Content-Type': file.type } });
+    // Confirme la fin de l'upload : déclenche checksum + scan antivirus.
+    await api.post(`/documents/${document.id}/confirm`);
     setMessage(`« ${file.name} » a bien été envoyé.`);
     refresh();
   }

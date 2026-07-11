@@ -9,6 +9,19 @@ projet adhère au [Semantic Versioning](https://semver.org/lang/fr/).
 
 ### Sécurité
 
+- **Scan antivirus et checksum réel des documents**
+  (`feat/document-antivirus-scan`, 2026-07-11, Europe/Brussels). **Migration :**
+  `20260711151147_add_document_scan_status` (colonnes `Document.scanStatus` +
+  `scannedAt`, enum `DocumentScanStatus`).
+  - `POST /documents/:id/confirm` (appelé après l'upload direct MinIO) met en
+    file un job qui **recalcule le SHA-256 réel** (remplace le placeholder
+    aléatoire) et **scanne** l'objet via clamd (`AntivirusService`, protocole
+    INSTREAM, sans dépendance externe).
+  - Fichier infecté → objet MinIO purgé + document neutralisé (soft delete).
+  - Sans `CLAMAV_HOST`, scan `SKIPPED` (jamais un faux `CLEAN`).
+  - Espace famille : appel de `confirm` après l'upload. Tests unitaires du
+    scanner (mock clamd réel). Variables `CLAMAV_HOST`/`CLAMAV_PORT` ajoutées à
+    `.env.example`.
 - **Durcissement applicatif** (`security/hardening`, 2026-07-11,
   Europe/Brussels) :
   - Helmet renforcé : CSP stricte, HSTS en production, `Referrer-Policy`,

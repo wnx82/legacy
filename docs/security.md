@@ -35,6 +35,15 @@ exigence de premier ordre, pas comme une option.
 - **Suppression logique puis physique** : `Document.deletedAt` est posé
   immédiatement, la suppression réelle de l'objet MinIO est déclenchée dans
   le même appel (`DocumentsService.remove`).
+- **Vérification post-upload** (`POST /documents/:id/confirm`) : recalcul du
+  **checksum SHA-256 réel** de l'objet (remplace le placeholder posé à la
+  création) et **scan antivirus** via clamd (`AntivirusService`, protocole
+  INSTREAM). Statut porté par `Document.scanStatus`
+  (`PENDING`/`CLEAN`/`INFECTED`/`SKIPPED`). Un fichier détecté infecté est
+  **purgé de MinIO et neutralisé** (soft delete). Si `CLAMAV_HOST` n'est pas
+  configuré, le scan est `SKIPPED` (jamais un faux `CLEAN`), mais le checksum
+  est tout de même recalculé. Le type MIME et la taille sont déjà validés en
+  amont (`ALLOWED_DOCUMENT_MIME_TYPES`, taille max) via Zod.
 
 ## Accès après décès
 

@@ -69,7 +69,10 @@ complémentaire à [`docs/roadmap.md`](docs/roadmap.md).
   [`docs/rgpd.md`](docs/rgpd.md),
   [`api/src/modules/accounts/`](api/src/modules/accounts/).
 
-- [ ] Le scan antivirus des documents uploadés n'est pas présent.
+- [x] Scan antivirus des documents uploadés. **(fait — `feat/document-antivirus-scan`)**
+  `POST /documents/:id/confirm` → checksum SHA-256 réel + scan clamd (INSTREAM),
+  purge si infecté. Statut `Document.scanStatus`. Sans `CLAMAV_HOST` : `SKIPPED`.
+  Migration `add_document_scan_status`.
 
 - [ ] Les sauvegardes chiffrées automatisées ne sont pas présentes dans ce
   dépôt.

@@ -1,7 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectQueue } from '@nestjs/bullmq';
+import type { Queue } from 'bullmq';
 import { PrismaService } from '../../prisma/prisma.service';
 import { StorageService } from '../storage/storage.service';
 import { AuditLogsService } from '../audit-logs/audit-logs.service';
+import { QUEUE_NAMES } from '../queue/queue.constants';
+import type { DocumentScanJobData } from '../queue/processors/document-scan.processor';
 import type { RequestUploadUrlDto, UpdateDocumentDto } from '@legacy/shared';
 import { randomUUID } from 'node:crypto';
 
@@ -17,7 +21,24 @@ export class DocumentsService {
     private readonly prisma: PrismaService,
     private readonly storageService: StorageService,
     private readonly auditLogsService: AuditLogsService,
+    @InjectQueue(QUEUE_NAMES.DOCUMENT_SCAN) private readonly scanQueue: Queue<DocumentScanJobData>,
   ) {}
+
+  /**
+   * Confirme la fin d'un upload direct navigateur -> MinIO. Déclenche le
+   * recalcul du checksum réel et le scan antivirus asynchrone.
+   */
+  async confirmUpload(documentId: string, userId: string) {
+    const document = await this.findOneOrThrow(documentId);
+    await this.scanQueue.add('scan', { documentId: document.id });
+    await this.auditLogsService.log({
+      userId,
+      action: 'document.upload_confirmed',
+      resourceType: 'Document',
+      resourceId: document.id,
+    });
+    return { id: document.id, scanStatus: document.scanStatus };
+  }
 
   /**
    * Crée l'enregistrement du document et renvoie une URL PUT signée.

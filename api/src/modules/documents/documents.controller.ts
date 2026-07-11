@@ -29,6 +29,11 @@ export class DocumentsController {
     });
   }
 
+  @Post(':id/confirm')
+  confirmUpload(@Param('id') id: string, @CurrentUser() user: AuthenticatedUser) {
+    return this.documentsService.confirmUpload(id, user.id);
+  }
+
   @Get(':id/download-url')
   getDownloadUrl(@Param('id') id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.documentsService.getDownloadUrl(id, user.id);
