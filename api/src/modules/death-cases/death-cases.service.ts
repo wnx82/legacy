@@ -17,8 +17,12 @@ import type {
   CreateNoteDto,
   RequestUploadUrlDto,
 } from '@legacy/shared';
+import { ForbiddenException } from '@nestjs/common';
 import { DeathCaseStatus, InvitationStatus } from '@legacy/database';
+import { UserRole, type AuthenticatedUser } from '@legacy/shared';
 import { randomBytes, randomUUID } from 'node:crypto';
+
+const PRO_ROLES: string[] = [UserRole.SUPER_ADMIN, UserRole.FUNERAL_HOME_ADMIN, UserRole.FUNERAL_ADVISOR];
 
 @Injectable()
 export class DeathCasesService {
@@ -259,6 +263,67 @@ export class DeathCasesService {
       resourceId: invite.id,
     });
     return { deathCaseId: invite.deathCaseId };
+  }
+
+  // --- Contrôle d'accès à un dossier décès ---
+  /**
+   * Autorise l'accès à un dossier décès soit à un professionnel (rôle pro),
+   * soit à un proche disposant d'une invitation `ACCEPTED` pour ce dossier
+   * (rapprochée par e-mail). Empêche un utilisateur authentifié quelconque de
+   * lire un dossier dont il n'a pas la charge (protection IDOR).
+   */
+  async assertCanAccessDeathCase(deathCaseId: string, user: AuthenticatedUser): Promise<void> {
+    await this.findOne(deathCaseId);
+    if (user.roles.some((role) => PRO_ROLES.includes(role))) return;
+
+    const invite = await this.prisma.familyInvite.findFirst({
+      where: { deathCaseId, email: user.email, status: InvitationStatus.ACCEPTED },
+    });
+    if (!invite) {
+      throw new ForbiddenException("Vous n'avez pas accès à ce dossier.");
+    }
+  }
+
+  // --- Données partagées avec la famille (issues du dossier vivant lié) ---
+  private async getLinkedLivingProfileId(deathCaseId: string): Promise<string | null> {
+    const deathCase = await this.prisma.deathCase.findUnique({
+      where: { id: deathCaseId },
+      select: { linkedLivingProfileId: true },
+    });
+    return deathCase?.linkedLivingProfileId ?? null;
+  }
+
+  /** Contacts du défunt marqués « visibles par la famille ». */
+  async listSharedContacts(deathCaseId: string, user: AuthenticatedUser) {
+    await this.assertCanAccessDeathCase(deathCaseId, user);
+    const livingProfileId = await this.getLinkedLivingProfileId(deathCaseId);
+    if (!livingProfileId) return [];
+    return this.prisma.contact.findMany({
+      where: { livingProfileId, visibleToFamily: true },
+      select: {
+        id: true,
+        category: true,
+        firstName: true,
+        lastName: true,
+        relationship: true,
+        phone: true,
+        email: true,
+        note: true,
+      },
+      orderBy: { category: 'asc' },
+    });
+  }
+
+  /** Volontés (souhaits) exprimées par le défunt dans son dossier vivant. */
+  async listSharedWishes(deathCaseId: string, user: AuthenticatedUser) {
+    await this.assertCanAccessDeathCase(deathCaseId, user);
+    const livingProfileId = await this.getLinkedLivingProfileId(deathCaseId);
+    if (!livingProfileId) return [];
+    return this.prisma.wish.findMany({
+      where: { livingProfileId },
+      select: { id: true, category: true, title: true, content: true, order: true },
+      orderBy: { order: 'asc' },
+    });
   }
 
   // --- Notes ---

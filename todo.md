@@ -21,10 +21,11 @@ complémentaire à [`docs/roadmap.md`](docs/roadmap.md).
   [`api/src/modules/death-cases/family-invites.controller.ts`](api/src/modules/death-cases/family-invites.controller.ts),
   [`apps/web-family/app/invitation/page.tsx`](apps/web-family/app/invitation/page.tsx).
 
-- [ ] Exposer à la famille les contacts utiles et volontés partagées du
-  dossier vivant lié au dossier décès.
-  Les pages existent côté `web-family`, mais sont explicitement en attente
-  d'endpoints dédiés :
+- [x] Exposer à la famille les contacts utiles et volontés partagées du
+  dossier vivant lié au dossier décès. **(fait — `feat/family-data-sharing`)**
+  Endpoints `GET /death-cases/:id/contacts` et `/wishes` avec contrôle d'accès
+  `assertCanAccessDeathCase` (pro ou proche à invitation acceptée, anti-IDOR).
+  Pages `web-family` reliées (états chargement/vide/erreur).
   [`apps/web-family/app/dossier/contacts/page.tsx`](apps/web-family/app/dossier/contacts/page.tsx),
   [`apps/web-family/app/dossier/volontes/page.tsx`](apps/web-family/app/dossier/volontes/page.tsx).
 

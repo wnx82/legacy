@@ -9,6 +9,17 @@ projet adhère au [Semantic Versioning](https://semver.org/lang/fr/).
 
 ### Ajouté
 
+- **Partage sécurisé des contacts et volontés du défunt vers la famille**
+  (`feat/family-data-sharing`, 2026-07-11, Europe/Brussels). Les pages
+  `web-family` « Contacts utiles » et « Volontés partagées » étaient en attente
+  d'endpoints. Ajout de :
+  - `GET /death-cases/:id/contacts` (contacts du dossier vivant lié marqués
+    `visibleToFamily`) et `GET /death-cases/:id/wishes` (volontés du défunt) ;
+  - contrôle d'accès `assertCanAccessDeathCase` : un dossier n'est lisible que
+    par un professionnel **ou** un proche disposant d'une invitation `ACCEPTED`
+    (rapprochée par e-mail) — protection IDOR, testée unitairement ;
+  - pages `web-family` reliées aux endpoints avec états de chargement, vide et
+    erreur.
 - **Flux d'invitation famille par e-mail de bout en bout**
   (`feat/family-invitations-email`, 2026-07-11, Europe/Brussels). Auparavant
   l'invitation créait un `FamilyInvite` mais n'envoyait aucun e-mail et le
