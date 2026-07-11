@@ -74,8 +74,9 @@ complémentaire à [`docs/roadmap.md`](docs/roadmap.md).
   purge si infecté. Statut `Document.scanStatus`. Sans `CLAMAV_HOST` : `SKIPPED`.
   Migration `add_document_scan_status`.
 
-- [ ] Les sauvegardes chiffrées automatisées ne sont pas présentes dans ce
-  dépôt.
+- [x] Sauvegardes chiffrées automatisées. **(fait — `ops/backups`)**
+  `infra/scripts/backup.sh` (PostgreSQL + MinIO, AES-256) et `restore.sh`,
+  doc `docs/backup.md` (cron, hors-site, rotation). Chemin PostgreSQL testé.
 
 ## Ce qui est bien déjà en place
 
