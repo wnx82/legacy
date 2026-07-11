@@ -1,7 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bullmq';
 import type { Queue } from 'bullmq';
 import { PrismaService } from '../../prisma/prisma.service';
+import { StorageService } from '../storage/storage.service';
 import { QUEUE_NAMES } from '../queue/queue.constants';
 import type { PdfExportJobData } from '../queue/processors/pdf-export.processor';
 import type { ZipExportJobData } from '../queue/processors/zip-export.processor';
@@ -11,6 +12,7 @@ import { ExportJobStatus, ExportJobType } from '@legacy/database';
 export class ExportsService {
   constructor(
     private readonly prisma: PrismaService,
+    private readonly storage: StorageService,
     @InjectQueue(QUEUE_NAMES.PDF_EXPORT) private readonly pdfQueue: Queue<PdfExportJobData>,
     @InjectQueue(QUEUE_NAMES.ZIP_EXPORT) private readonly zipQueue: Queue<ZipExportJobData>,
   ) {}
@@ -40,9 +42,27 @@ export class ExportsService {
     return exportJob;
   }
 
-  async findOne(id: string) {
+  async findOne(id: string, requesterId: string) {
     const exportJob = await this.prisma.exportJob.findUnique({ where: { id } });
     if (!exportJob) throw new NotFoundException('Export introuvable');
+    // Un export n'est visible que par la personne qui l'a demandé — un job
+    // d'export peut contenir des données sensibles (documents, RGPD).
+    if (exportJob.requestedById !== requesterId) {
+      throw new ForbiddenException("Vous n'avez pas accès à cet export.");
+    }
     return exportJob;
+  }
+
+  /**
+   * Renvoie une URL de téléchargement signée et temporaire pour le résultat
+   * d'un export terminé. Refuse tant que le job n'est pas COMPLETED.
+   */
+  async getResultUrl(id: string, requesterId: string) {
+    const exportJob = await this.findOne(id, requesterId);
+    if (exportJob.status !== ExportJobStatus.COMPLETED || !exportJob.resultStorageKey) {
+      throw new NotFoundException("L'export n'est pas encore prêt.");
+    }
+    const url = await this.storage.getPresignedDownloadUrl(exportJob.resultStorageKey);
+    return { url, expiresInSeconds: 300 };
   }
 }

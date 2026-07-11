@@ -7,6 +7,23 @@ projet adhère au [Semantic Versioning](https://semver.org/lang/fr/).
 
 ## [Unreleased]
 
+### Ajouté
+
+- **Rendu réel des exports PDF et ZIP** (`feat/exports-rendering`, 2026-07-11,
+  Europe/Brussels). Les workers étaient des placeholders ; ils produisent
+  désormais de vrais fichiers :
+  - `PdfExportProcessor` charge les données (dossier vivant ou dossier décès)
+    depuis Prisma, génère un PDF vectoriel avec `pdfkit` (identité, volontés,
+    contacts, personnes de confiance, checklist, documents), l'upload dans
+    MinIO et marque l'`ExportJob` `COMPLETED` (ou `FAILED` avec message).
+  - `ZipExportProcessor` streame chaque document depuis MinIO vers une archive
+    `archiver`, elle-même streamée vers un nouvel objet MinIO (gestion des
+    collisions de noms).
+  - `StorageService.putObject` / `getObjectStream` ajoutés.
+  - Endpoint `GET /exports/:id/download` renvoyant une URL signée temporaire,
+    réservé au demandeur (contrôle de propriété + statut `COMPLETED` requis).
+  - Test unitaire du renderer PDF (signature `%PDF`, pagination).
+
 ### Outillage
 
 - **Lint opérationnel sur tout le monorepo** (`chore/tooling-lint`, 2026-07-11,
