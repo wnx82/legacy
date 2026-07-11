@@ -66,4 +66,36 @@ export class AuditLogsService {
 
     return { items, total, page, pageSize };
   }
+
+  /**
+   * Agrégats pour le tableau de bord d'audit : total, répartition par action et
+   * par résultat, volume des 7 derniers jours. Optionnellement filtré par
+   * organisation.
+   */
+  async summary(params: { organizationId?: string } = {}) {
+    const where = params.organizationId ? { organizationId: params.organizationId } : {};
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+
+    const [total, last7Days, byAction, byResult, failures] = await Promise.all([
+      this.prisma.auditLog.count({ where }),
+      this.prisma.auditLog.count({ where: { ...where, createdAt: { gte: sevenDaysAgo } } }),
+      this.prisma.auditLog.groupBy({
+        by: ['action'],
+        where,
+        _count: { action: true },
+        orderBy: { _count: { action: 'desc' } },
+        take: 15,
+      }),
+      this.prisma.auditLog.groupBy({ by: ['result'], where, _count: { result: true } }),
+      this.prisma.auditLog.count({ where: { ...where, result: AuditResult.FAILURE } }),
+    ]);
+
+    return {
+      total,
+      last7Days,
+      failures,
+      byAction: byAction.map((row) => ({ action: row.action, count: row._count.action })),
+      byResult: byResult.map((row) => ({ result: row.result, count: row._count.result })),
+    };
+  }
 }

@@ -57,10 +57,10 @@ complémentaire à [`docs/roadmap.md`](docs/roadmap.md).
   [`packages/shared/src/constants/permissions.ts`](packages/shared/src/constants/permissions.ts),
   [`database/prisma/schema.prisma`](database/prisma/schema.prisma).
 
-- [ ] Les audit logs sont présents, mais la couverture n'est pas complète et
-  il n'y a pas de tableau de bord d'audit dédié.
-  Le service existe et certaines actions journalisent déjà :
-  [`api/src/modules/audit-logs/audit-logs.service.ts`](api/src/modules/audit-logs/audit-logs.service.ts).
+- [x] Audit logs : couverture élargie + tableau de bord dédié. **(fait — `feat/audit-coverage`)**
+  `GET /audit-logs/summary` (agrégats) + page « Journal d'audit » du portail pro.
+  Journalisation ajoutée (notes, accès, invitations, exports, comptes, documents).
+  [`apps/web-pro/app/journal/page.tsx`](apps/web-pro/app/journal/page.tsx).
 
 - [x] Export RGPD complet + suppression de compte en cascade. **(fait — `feat/rgpd-and-account-deletion`)**
   `POST /exports/rgpd` (JSON complet via `RgpdExportProcessor`) et

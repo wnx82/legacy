@@ -337,7 +337,16 @@ export class DeathCasesService {
 
   async createNote(deathCaseId: string, dto: CreateNoteDto, authorId: string) {
     await this.findOne(deathCaseId);
-    return this.prisma.note.create({ data: { ...dto, deathCaseId, authorId } });
+    const note = await this.prisma.note.create({ data: { ...dto, deathCaseId, authorId } });
+    await this.auditLogsService.log({
+      userId: authorId,
+      deathCaseId,
+      action: 'note.create',
+      resourceType: 'Note',
+      resourceId: note.id,
+      details: { visibility: dto.visibility },
+    });
+    return note;
   }
 
   // --- Invitations (collaborateurs / prospects vivants) ---

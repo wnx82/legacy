@@ -7,6 +7,14 @@ projet adhère au [Semantic Versioning](https://semver.org/lang/fr/).
 
 ## [Unreleased]
 
+### Ajouté
+
+- **Tableau de bord d'audit** (`feat/audit-coverage`, 2026-07-11,
+  Europe/Brussels) : endpoint `GET /audit-logs/summary` (total, 7 derniers
+  jours, échecs, répartition par action/résultat) et page « Journal d'audit »
+  dans le portail pro (cartes de synthèse + tableau des événements récents).
+  Couverture élargie : journalisation de la création de notes.
+
 ### Sécurité
 
 - **Scan antivirus et checksum réel des documents**
