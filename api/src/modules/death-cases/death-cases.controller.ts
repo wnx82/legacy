@@ -44,7 +44,9 @@ export class DeathCasesController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  async findOne(@Param('id') id: string, @CurrentUser() user: AuthenticatedUser) {
+    // Anti-IDOR : seul un pro ou un proche à invitation acceptée peut lire le dossier.
+    await this.deathCasesService.assertCanAccessDeathCase(id, user);
     return this.deathCasesService.findOne(id);
   }
 
@@ -61,7 +63,8 @@ export class DeathCasesController {
   }
 
   @Get(':id/tasks')
-  listTasks(@Param('id') id: string) {
+  async listTasks(@Param('id') id: string, @CurrentUser() user: AuthenticatedUser) {
+    await this.deathCasesService.assertCanAccessDeathCase(id, user);
     return this.deathCasesService.listTasks(id);
   }
 
@@ -82,7 +85,8 @@ export class DeathCasesController {
   }
 
   @Get(':id/documents')
-  listDocuments(@Param('id') id: string) {
+  async listDocuments(@Param('id') id: string, @CurrentUser() user: AuthenticatedUser) {
+    await this.deathCasesService.assertCanAccessDeathCase(id, user);
     return this.deathCasesService.listDocuments(id);
   }
 
@@ -96,6 +100,7 @@ export class DeathCasesController {
   }
 
   @Get(':id/family')
+  @Roles(...PRO_ROLES)
   listFamily(@Param('id') id: string) {
     return this.deathCasesService.listFamily(id);
   }

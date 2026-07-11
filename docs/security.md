@@ -63,14 +63,28 @@ n'interrompt jamais l'action métier (voir le commentaire dans
 
 ## Sécurité applicative (API)
 
-- **Helmet** (en-têtes de sécurité HTTP) et **compression** activés
-  globalement (`main.ts`).
+- **Helmet durci** (`main.ts`) : CSP stricte (`default-src 'none'`,
+  `frame-ancestors 'none'`, `base-uri 'none'` — l'API ne sert que du JSON),
+  `HSTS` activé en production (1 an, `includeSubDomains`, `preload`),
+  `Referrer-Policy: no-referrer`, `Cross-Origin-Resource-Policy: same-site`,
+  suppression de `X-Powered-By`.
+- **`trust proxy` = 1** : vraie IP client derrière le reverse proxy (rate
+  limiting et audit fiables).
+- **Limite de taille des corps de requête** (256 Ko JSON) : l'API ne reçoit
+  que des métadonnées, les fichiers vont directement en MinIO via URL signée.
 - **CORS restreint** aux seules origines connues (`WEBSITE_URL`,
   `WEB_PRO_URL`, `WEB_FAMILY_URL`).
 - **Rate limiting** (`@nestjs/throttler`), configurable via
-  `RATE_LIMIT_MAX`/`RATE_LIMIT_WINDOW_MS`.
+  `RATE_LIMIT_MAX`/`RATE_LIMIT_WINDOW_MS` ; **limite serrée (5/min/IP)** sur
+  les formulaires publics non authentifiés (`/contact`, `/demo-request`).
+- **Pot de miel anti-spam** (`website`) sur les formulaires publics : une
+  soumission le remplissant reçoit un succès factice sans persistance.
+- **Protection anti-IDOR sur les dossiers décès** : lecture d'un dossier, de
+  sa checklist et de ses documents réservée à un professionnel ou à un proche
+  disposant d'une invitation acceptée (`assertCanAccessDeathCase`).
 - **Validation stricte des entrées** via Zod (`nestjs-zod`), schémas
-  partagés avec les frontends (`@legacy/shared`).
+  partagés avec les frontends (`@legacy/shared`) : type MIME et taille des
+  documents contrôlés (`ALLOWED_DOCUMENT_MIME_TYPES`, taille max).
 - **Pas de fuite d'information en production** : `AllExceptionsFilter`
   masque les stack traces et détails internes lorsque `APP_ENV=production`.
 - **Secrets hors du code source** : toutes les valeurs sensibles viennent de

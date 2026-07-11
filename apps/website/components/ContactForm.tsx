@@ -18,6 +18,7 @@ export function ContactForm() {
         email: form.get('email'),
         subject: form.get('subject'),
         message: form.get('message'),
+        website: form.get('website'),
       });
       setStatus('success');
     } catch {
@@ -35,6 +36,13 @@ export function ContactForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      {/* Pot de miel anti-spam : masqué et non focusable, ne doit jamais être rempli. */}
+      <div aria-hidden="true" className="absolute left-[-9999px] h-0 w-0 overflow-hidden">
+        <label>
+          Ne pas remplir
+          <input name="website" type="text" tabIndex={-1} autoComplete="off" />
+        </label>
+      </div>
       <div className="grid gap-4 sm:grid-cols-2">
         <input name="firstName" required placeholder="Prénom" className="rounded-md border border-gray-300 p-3" />
         <input name="lastName" required placeholder="Nom" className="rounded-md border border-gray-300 p-3" />
