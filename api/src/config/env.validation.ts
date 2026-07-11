@@ -2,14 +2,29 @@ import { z } from 'zod';
 
 export const envSchema = z.object({
   APP_ENV: z.enum(['development', 'test', 'production']).default('development'),
+  // Runtime applicatif (via PgBouncer en production). Ajouter `?pgbouncer=true`.
   DATABASE_URL: z.string().min(1),
+  // Connexion PostgreSQL directe pour les migrations/opérations admin (pg-shared).
+  // Optionnelle : en dev local une seule instance existe et DATABASE_URL suffit.
+  DATABASE_URL_DIRECT: z.string().optional(),
   REDIS_URL: z.string().min(1),
-  MINIO_ENDPOINT: z.string().min(1),
+  // --- Stockage objet : schéma S3_* (Garage partagé) OU MINIO_* (dev local) ---
+  // Les deux schémas sont optionnels individuellement ; un superRefine ci-dessous
+  // impose qu'au moins l'un des deux soit complet.
+  S3_ENDPOINT: z.string().optional(),
+  S3_REGION: z.string().optional(),
+  S3_BUCKET: z.string().optional(),
+  S3_ACCESS_KEY_ID: z.string().optional(),
+  S3_SECRET_ACCESS_KEY: z.string().optional(),
+  // URL publique de base des médias publics (ex: https://legacy.media.ekreativ.be).
+  PUBLIC_BASE_URL: z.string().optional(),
+  MINIO_ENDPOINT: z.string().optional(),
   MINIO_PORT: z.coerce.number().default(9000),
   MINIO_USE_SSL: z.coerce.boolean().default(false),
-  MINIO_ACCESS_KEY: z.string().min(1),
-  MINIO_SECRET_KEY: z.string().min(1),
-  MINIO_BUCKET: z.string().min(1),
+  MINIO_ACCESS_KEY: z.string().optional(),
+  MINIO_SECRET_KEY: z.string().optional(),
+  MINIO_BUCKET: z.string().optional(),
+  MINIO_REGION: z.string().optional(),
   KEYCLOAK_URL: z.string().min(1),
   // URL publique (vue du navigateur) du realm Keycloak, utilisée pour valider
   // le claim `iss` des tokens — diffère de KEYCLOAK_URL dès que l'API atteint
@@ -45,7 +60,22 @@ export const envSchema = z.object({
   GITHUB_TOKEN: z.string().optional(),
   GITHUB_REPO: z.string().optional(),
   GITHUB_BRANCH: z.string().default('main'),
-});
+})
+  // Au moins un schéma de stockage objet complet doit être fourni : soit S3_*
+  // (Garage partagé), soit MINIO_* (dev local). On ne journalise jamais les
+  // valeurs, uniquement l'absence des clés requises.
+  .superRefine((cfg, ctx) => {
+    const hasS3 = cfg.S3_ENDPOINT && cfg.S3_ACCESS_KEY_ID && cfg.S3_SECRET_ACCESS_KEY && cfg.S3_BUCKET;
+    const hasMinio =
+      cfg.MINIO_ENDPOINT && cfg.MINIO_ACCESS_KEY && cfg.MINIO_SECRET_KEY && cfg.MINIO_BUCKET;
+    if (!hasS3 && !hasMinio) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message:
+          'Configuration de stockage objet incomplète : fournir soit S3_* (S3_ENDPOINT, S3_ACCESS_KEY_ID, S3_SECRET_ACCESS_KEY, S3_BUCKET) soit MINIO_* (MINIO_ENDPOINT, MINIO_ACCESS_KEY, MINIO_SECRET_KEY, MINIO_BUCKET).',
+      });
+    }
+  });
 
 export type EnvConfig = z.infer<typeof envSchema>;
 

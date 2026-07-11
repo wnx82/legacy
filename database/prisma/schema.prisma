@@ -15,7 +15,14 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  // Runtime applicatif : passe par PgBouncer (transaction pooling). Ajouter
+  // `?pgbouncer=true` à DATABASE_URL désactive les prepared statements
+  // persistants, incompatibles avec le pooling transactionnel.
+  url = env("DATABASE_URL")
+  // Migrations / opérations administratives : connexion PostgreSQL directe
+  // (pg-shared), jamais derrière PgBouncer. Retombe sur DATABASE_URL en
+  // développement local où une seule instance existe (voir docs/postgres.md).
+  directUrl = env("DATABASE_URL_DIRECT")
 }
 
 // -----------------------------------------------------------------------------

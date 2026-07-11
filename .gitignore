@@ -49,3 +49,6 @@ infra/data/
 # Misc
 *.tsbuildinfo
 .eslintcache
+
+# Artefact runtime de migration des médias
+*.manifest.jsonl

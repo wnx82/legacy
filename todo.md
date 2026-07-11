@@ -5,6 +5,17 @@ Ce fichier remplace l'ancien suivi devenu obsolète.
 
 ## Priorité haute
 
+- [ ] Rejouer la validation de l'infrastructure partagée sur l'hôte de
+  déploiement (hors périmètre de la machine de dev, secrets + réseau `shared-db`
+  absents). Voir `docs/shared-infrastructure.md` §7 :
+  - DNS + ports `pgbouncer:6432`, `pg-shared:5432`, `garage:3900` ;
+  - `SELECT current_database(), current_user;` via PgBouncer **et** direct ;
+  - smoke test S3 (upload/stat/list/get/delete) dans `healthchecks/<aléatoire>` ;
+  - URL publique `https://legacy.media.ekreativ.be` (DNS/TLS/MIME/cache) ;
+  - `prisma migrate deploy` via `DATABASE_URL_DIRECT` ;
+  - migration des médias existants (`migrate:media --dry-run` puis réel).
+
+
 - [ ] Rejouer les parcours e2e avec la stack complète.
   À valider quand Keycloak et MinIO tournent réellement ensemble :
   connexion complète, invitation famille bout à bout, upload/scan/download de
