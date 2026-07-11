@@ -110,6 +110,18 @@ export class DeathCasesController {
     return this.deathCasesService.inviteFamilyMember(id, dto, user.id);
   }
 
+  @Get(':id/contacts')
+  @Roles(...PRO_ROLES, UserRole.FAMILY_MEMBER)
+  listSharedContacts(@Param('id') id: string, @CurrentUser() user: AuthenticatedUser) {
+    return this.deathCasesService.listSharedContacts(id, user);
+  }
+
+  @Get(':id/wishes')
+  @Roles(...PRO_ROLES, UserRole.FAMILY_MEMBER)
+  listSharedWishes(@Param('id') id: string, @CurrentUser() user: AuthenticatedUser) {
+    return this.deathCasesService.listSharedWishes(id, user);
+  }
+
   @Get(':id/notes')
   @Roles(...PRO_ROLES, UserRole.FAMILY_MEMBER)
   listNotes(@Param('id') id: string, @CurrentUser() user: AuthenticatedUser) {
