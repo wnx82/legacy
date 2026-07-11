@@ -7,6 +7,17 @@ projet adhère au [Semantic Versioning](https://semver.org/lang/fr/).
 
 ## [Unreleased]
 
+### Ajouté
+
+- **Authentification OIDC desktop de l'app Flutter**
+  (`feat/flutter-desktop-oidc`, 2026-07-11, Europe/Brussels). Windows/macOS/Linux
+  utilisent désormais un flux « loopback » PKCE (RFC 8252 §7.3) : serveur HTTP
+  local éphémère sur `127.0.0.1:<port>`, ouverture du navigateur système,
+  échange `code` → token. Sélection mobile/desktop automatique. Dépendances
+  `url_launcher` et `crypto` ajoutées. Parité : l'ajout de document appelle
+  aussi `/documents/:id/confirm`. **Non vérifié à l'exécution** (SDK Flutter
+  absent de l'environnement) — voir `apps/app/README.md`.
+
 ### Modifié
 
 - **Formalités belges vérifiées et datées** (`docs/formalities-verification`,

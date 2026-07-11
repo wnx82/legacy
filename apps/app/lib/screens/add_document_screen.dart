@@ -42,7 +42,12 @@ class _AddDocumentScreenState extends State<AddDocumentScreen> {
         'categoryKey': _category,
       });
       final uploadUrl = response['uploadUrl'] as String;
+      final documentId = (response['document'] as Map<String, dynamic>?)?['id'] as String?;
       await http.put(Uri.parse(uploadUrl), body: file.bytes);
+      // Confirme la fin de l'upload : déclenche checksum + scan antivirus côté API.
+      if (documentId != null) {
+        await api.post('/documents/$documentId/confirm', {});
+      }
       if (mounted) context.pop();
     } finally {
       if (mounted) setState(() => _uploading = false);
