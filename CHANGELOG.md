@@ -9,6 +9,20 @@ projet adhère au [Semantic Versioning](https://semver.org/lang/fr/).
 
 ### Ajouté
 
+- **Flux d'invitation famille par e-mail de bout en bout**
+  (`feat/family-invitations-email`, 2026-07-11, Europe/Brussels). Auparavant
+  l'invitation créait un `FamilyInvite` mais n'envoyait aucun e-mail et le
+  portail pro demandait de transmettre manuellement un lien `?dossier=<id>`.
+  Désormais :
+  - jeton d'invitation aléatoire fort (256 bits) au lieu d'un UUID exposé ;
+  - e-mail d'invitation HTML (gabarit `mailer/templates.ts`, contenu échappé)
+    envoyé via la file `emails` avec un lien `/invitation?token=…` ;
+  - endpoints `GET /family-invites/:token` (public, infos minimales) et
+    `POST /family-invites/:token/accept` (connecté) qui valident le jeton,
+    marquent l'invitation `ACCEPTED` et renvoient le dossier lié ;
+  - page `web-family/invitation` qui active l'accès et mémorise le dossier ;
+  - le portail pro n'expose plus de lien manuel ; le token ne quitte jamais
+    l'API vers le portail pro (retiré de la réponse d'invitation).
 - **Rendu réel des exports PDF et ZIP** (`feat/exports-rendering`, 2026-07-11,
   Europe/Brussels). Les workers étaient des placeholders ; ils produisent
   désormais de vrais fichiers :

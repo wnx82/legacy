@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 
-const STORAGE_KEY = 'legacy_family_case_id';
+export const STORAGE_KEY = 'legacy_family_case_id';
 
 /**
  * Le lien d'invitation envoyé par la pompe funèbre contient l'identifiant du

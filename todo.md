@@ -13,12 +13,13 @@ complémentaire à [`docs/roadmap.md`](docs/roadmap.md).
   [`api/src/modules/queue/processors/pdf-export.processor.ts`](api/src/modules/queue/processors/pdf-export.processor.ts),
   [`api/src/modules/queue/processors/zip-export.processor.ts`](api/src/modules/queue/processors/zip-export.processor.ts).
 
-- [ ] Brancher un vrai flux d'invitation famille par e-mail.
-  L'API et l'UI créent bien des `FamilyInvite`, mais aucun e-mail n'est envoyé
-  et le portail pro demande encore de transmettre manuellement un lien
-  `?dossier=<id>` :
+- [x] Brancher un vrai flux d'invitation famille par e-mail. **(fait — `feat/family-invitations-email`)**
+  E-mail HTML envoyé via la file `emails`, jeton fort, endpoints
+  `GET /family-invites/:token` + `POST /family-invites/:token/accept`, page
+  `web-family/invitation`. Plus de lien `?dossier=<id>` manuel.
   [`api/src/modules/death-cases/death-cases.service.ts`](api/src/modules/death-cases/death-cases.service.ts),
-  [`apps/web-pro/app/dossiers/[id]/famille/page.tsx`](apps/web-pro/app/dossiers/[id]/famille/page.tsx).
+  [`api/src/modules/death-cases/family-invites.controller.ts`](api/src/modules/death-cases/family-invites.controller.ts),
+  [`apps/web-family/app/invitation/page.tsx`](apps/web-family/app/invitation/page.tsx).
 
 - [ ] Exposer à la famille les contacts utiles et volontés partagées du
   dossier vivant lié au dossier décès.
