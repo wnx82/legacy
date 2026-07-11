@@ -1,7 +1,13 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { InjectQueue } from '@nestjs/bullmq';
+import type { Queue } from 'bullmq';
 import { PrismaService } from '../../prisma/prisma.service';
 import { DocumentsService } from '../documents/documents.service';
 import { AuditLogsService } from '../audit-logs/audit-logs.service';
+import { QUEUE_NAMES } from '../queue/queue.constants';
+import type { EmailJobData } from '../queue/processors/emails.processor';
+import { familyInviteEmail } from '../mailer/templates';
 import type {
   CreateDeathCaseDto,
   UpdateDeathCaseDto,
@@ -11,8 +17,8 @@ import type {
   CreateNoteDto,
   RequestUploadUrlDto,
 } from '@legacy/shared';
-import { DeathCaseStatus } from '@legacy/database';
-import { randomUUID } from 'node:crypto';
+import { DeathCaseStatus, InvitationStatus } from '@legacy/database';
+import { randomBytes, randomUUID } from 'node:crypto';
 
 @Injectable()
 export class DeathCasesService {
@@ -20,6 +26,8 @@ export class DeathCasesService {
     private readonly prisma: PrismaService,
     private readonly documentsService: DocumentsService,
     private readonly auditLogsService: AuditLogsService,
+    private readonly configService: ConfigService,
+    @InjectQueue(QUEUE_NAMES.EMAILS) private readonly emailsQueue: Queue<EmailJobData>,
   ) {}
 
   async findAll(organizationId?: string) {
@@ -157,7 +165,15 @@ export class DeathCasesService {
   }
 
   async inviteFamilyMember(deathCaseId: string, dto: InviteFamilyMemberDto, invitedById: string) {
-    await this.findOne(deathCaseId);
+    const deathCase = await this.prisma.deathCase.findUnique({
+      where: { id: deathCaseId },
+      include: { organization: true },
+    });
+    if (!deathCase) throw new NotFoundException('Dossier décès introuvable');
+
+    // Jeton d'invitation non devinable (128 bits) — sert de secret d'accès au
+    // dossier tant que le proche n'a pas de session : on privilégie un secret
+    // aléatoire fort plutôt qu'un UUID v4 exposé dans une URL.
     const invite = await this.prisma.familyInvite.create({
       data: {
         deathCaseId,
@@ -166,10 +182,21 @@ export class DeathCasesService {
         lastName: dto.lastName,
         relationship: dto.relationship,
         invitedById,
-        token: randomUUID(),
+        token: randomBytes(32).toString('hex'),
         expiresAt: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
       },
     });
+
+    // Envoi de l'e-mail d'invitation via la file d'attente (retries, non bloquant).
+    const webFamilyUrl = this.configService.get<string>('WEB_FAMILY_URL') ?? 'http://localhost:3003';
+    const { subject, html } = familyInviteEmail({
+      recipientName: [dto.firstName, dto.lastName].filter(Boolean).join(' ') || null,
+      deceasedName: `${deathCase.deceasedFirstName} ${deathCase.deceasedLastName}`,
+      organizationName: deathCase.organization?.name ?? null,
+      acceptUrl: `${webFamilyUrl}/invitation?token=${invite.token}`,
+    });
+    await this.emailsQueue.add('family-invite', { to: dto.email, subject, html });
+
     await this.auditLogsService.log({
       userId: invitedById,
       deathCaseId,
@@ -177,7 +204,61 @@ export class DeathCasesService {
       resourceType: 'FamilyInvite',
       resourceId: invite.id,
     });
-    return invite;
+    // Le token n'est pas renvoyé au portail pro : il ne transite que par l'e-mail
+    // du proche invité.
+    const { token: _token, ...safeInvite } = invite;
+    return safeInvite;
+  }
+
+  /** Résolution publique d'un jeton d'invitation famille (avant connexion). */
+  async getFamilyInviteInfo(token: string) {
+    const invite = await this.prisma.familyInvite.findUnique({
+      where: { token },
+      include: { deathCase: { include: { organization: true } } },
+    });
+    if (!invite) throw new NotFoundException('Invitation introuvable ou expirée');
+    const expired = invite.expiresAt.getTime() < Date.now();
+    return {
+      status: expired && invite.status === InvitationStatus.PENDING ? InvitationStatus.EXPIRED : invite.status,
+      expired,
+      deceasedFirstName: invite.deathCase.deceasedFirstName,
+      deceasedLastName: invite.deathCase.deceasedLastName,
+      organizationName: invite.deathCase.organization?.name ?? null,
+    };
+  }
+
+  /**
+   * Acceptation d'une invitation par un proche connecté : valide le jeton,
+   * marque l'invitation ACCEPTED et renvoie l'identifiant du dossier décès
+   * auquel le proche a désormais accès.
+   */
+  async acceptFamilyInvite(token: string, userId: string) {
+    const invite = await this.prisma.familyInvite.findUnique({ where: { token } });
+    if (!invite) throw new NotFoundException('Invitation introuvable');
+    if (invite.status === InvitationStatus.REVOKED) {
+      throw new BadRequestException('Cette invitation a été révoquée.');
+    }
+    if (invite.expiresAt.getTime() < Date.now()) {
+      if (invite.status !== InvitationStatus.EXPIRED) {
+        await this.prisma.familyInvite.update({ where: { token }, data: { status: InvitationStatus.EXPIRED } });
+      }
+      throw new BadRequestException('Cette invitation a expiré.');
+    }
+
+    if (invite.status !== InvitationStatus.ACCEPTED) {
+      await this.prisma.familyInvite.update({
+        where: { token },
+        data: { status: InvitationStatus.ACCEPTED, acceptedAt: new Date() },
+      });
+    }
+    await this.auditLogsService.log({
+      userId,
+      deathCaseId: invite.deathCaseId,
+      action: 'family_invite.accept',
+      resourceType: 'FamilyInvite',
+      resourceId: invite.id,
+    });
+    return { deathCaseId: invite.deathCaseId };
   }
 
   // --- Notes ---
