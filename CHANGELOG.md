@@ -7,6 +7,15 @@ projet adhère au [Semantic Versioning](https://semver.org/lang/fr/).
 
 ## [Unreleased]
 
+### Corrigé
+
+- **Démarrage de l'API** (`fix/express-dependency`, 2026-07-11,
+  Europe/Brussels) : l'import `express` ajouté au durcissement (`json`,
+  `urlencoded`) n'était qu'une dépendance transitive → `Cannot find module
+  'express'` au démarrage (le build passait, l'exécution non). `express` ajouté
+  comme dépendance directe de l'API. **Détecté par un test de démarrage réel**
+  (boot + requêtes) ; corrigé et re-vérifié.
+
 ### Ajouté
 
 - **Authentification OIDC desktop de l'app Flutter**
