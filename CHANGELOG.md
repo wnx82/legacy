@@ -7,6 +7,44 @@ projet adhère au [Semantic Versioning](https://semver.org/lang/fr/).
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-07-12
+
+Intégration de l'infrastructure **partagée** (PostgreSQL + PgBouncer + Garage S3)
+pour le déploiement Komodo, sans rupture du développement local
+(`feat/shared-postgres-s3`).
+
+> Validation réseau/DB/S3 à rejouer sur l'hôte de déploiement : le code et la
+> configuration ont été préparés hors serveur (secrets et réseau `shared-db`
+> absents de la machine de développement). Voir `docs/shared-infrastructure.md`.
+
+### Ajouté
+
+- **Connexion PostgreSQL directe** (`DATABASE_URL_DIRECT`) via `directUrl` dans
+  `schema.prisma` — migrations/admin hors PgBouncer (`pg-shared:5432`), runtime
+  applicatif via PgBouncer (`pgbouncer:6432`, `?pgbouncer=true`).
+- **Stockage objet générique S3** — `StorageService` accepte le schéma `S3_*`
+  (Garage partagé, path-style) avec repli `MINIO_*` (dev). Ajout de
+  `buildPublicUrl()` (médias publics) et `ping()` (healthcheck). Les documents
+  sensibles restent en URL signée temporaire.
+- **Readiness** — `GET /api/health/ready` (PostgreSQL + stockage). Le stockage
+  est non critique (`degraded`, pas `error`). Aucun secret exposé.
+- **Compose production** — `infra/docker-compose.shared.yml` : `env_file` des
+  deux fichiers de secrets + réseau externe `shared-db`, sans base ni stockage
+  embarqués. `.dockerignore` ajouté (aucun secret/`.env` dans l'image).
+- **Migration médias** — `infra/scripts/migrate-media-to-garage.mjs`
+  (idempotent, `--dry-run`, reprenable, source jamais supprimée) +
+  `pnpm --filter @legacy/api migrate:media`.
+- **Documentation** — `docs/shared-infrastructure.md` (PostgreSQL/PgBouncer,
+  Garage S3, secrets, migration, healthchecks, diagnostic, rollback) ;
+  `.env.example` enrichi (`DATABASE_URL_DIRECT`, `S3_*`, `PUBLIC_BASE_URL`).
+
+### Modifié
+
+- `env.validation.ts` : `MINIO_*` désormais optionnel ; impose (via `superRefine`)
+  au moins un schéma de stockage complet (`S3_*` **ou** `MINIO_*`).
+- `api/Dockerfile` (target production) copie `package.json` racine (repli de
+  `GET /api/version`).
+
 ## [1.2.0] - 2026-07-12
 
 Ajout de l'exposition de version au runtime et de la vérification de mise à jour

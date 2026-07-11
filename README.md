@@ -16,7 +16,7 @@ l'avertissement légal complet et la vision produit dans
 
 ## Statut du projet
 
-✅ Version **1.2.0** — campagne de finalisation. Toutes les tâches de
+✅ Version **1.3.0** — campagne de finalisation. Toutes les tâches de
 [`todo.md`](todo.md) sont traitées : exports PDF/ZIP réels, invitations famille
 par e-mail, partage sécurisé des données du défunt, workflow d'accès après décès
 (`AccessGrant`), export RGPD + suppression de compte, scan antivirus des
@@ -147,6 +147,8 @@ La documentation complète se trouve dans [`/docs`](docs) :
 - [`api.md`](docs/api.md) — API REST (voir aussi Swagger en local)
 - [`product.md`](docs/product.md) — vision produit, ton, rôles, avertissement légal
 - [`deployment.md`](docs/deployment.md) — déploiement au-delà du local
+- [`shared-infrastructure.md`](docs/shared-infrastructure.md) — PostgreSQL/PgBouncer + Garage S3 partagés (Komodo)
+- [`versioning.md`](docs/versioning.md) — règle de versioning et vérification de mise à jour
 
 ## Structure du monorepo
 

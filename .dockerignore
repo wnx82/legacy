@@ -1,0 +1,52 @@
+# =============================================================================
+# Contexte de build Docker — exclut secrets, artefacts et dépendances.
+# Objectif prioritaire : aucun secret ni fichier .env ne doit entrer dans une
+# image. Les identifiants proviennent exclusivement des env_file montés au
+# runtime (voir infra/docker-compose.shared.yml).
+# =============================================================================
+
+# Secrets & environnement (jamais dans une image)
+.env
+.env.*
+!.env.example
+**/.env
+**/.env.*
+!**/.env.example
+*.pem
+*.key
+secrets/
+**/secrets/
+
+# Dépendances (réinstallées dans l'image)
+node_modules/
+**/node_modules/
+.pnpm-store/
+
+# Build outputs
+.next/
+**/.next/
+out/
+dist/
+**/dist/
+build/
+.turbo/
+**/.turbo/
+
+# Git & CI
+.git/
+.github/
+.gitignore
+
+# Flutter / app desktop (non nécessaire à l'image API)
+apps/app/
+
+# Logs, tests, éditeurs
+*.log
+coverage/
+**/coverage/
+.vscode/
+.idea/
+.DS_Store
+
+# Docker volumes locaux éventuels
+infra/data/

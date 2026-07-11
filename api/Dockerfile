@@ -35,6 +35,9 @@ RUN pnpm --filter @legacy/api build
 FROM node:20-alpine AS production
 WORKDIR /app
 ENV NODE_ENV=production
+# package.json racine : sert de repli à GET /api/version quand APP_VERSION
+# n'est pas injectée au déploiement (voir version.service.ts).
+COPY --from=build /app/package.json ./package.json
 COPY --from=build /app/api/dist ./api/dist
 COPY --from=build /app/api/node_modules ./api/node_modules
 COPY --from=build /app/node_modules ./node_modules
