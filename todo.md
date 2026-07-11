@@ -45,10 +45,11 @@ complémentaire à [`docs/roadmap.md`](docs/roadmap.md).
 
 ## Partiellement en place, mais pas réellement terminés
 
-- [ ] `AccessGrant` est modélisé en base, mais le flux métier n'existe pas
-  encore réellement.
-  Pas d'endpoints ni de workflow de validation/révocation observés :
-  [`database/prisma/schema.prisma`](database/prisma/schema.prisma).
+- [x] `AccessGrant` : flux métier complet. **(fait — `feat/access-grants`)**
+  Module `access-grants` : demande / activation / suspension / révocation,
+  autorisation stricte (autorité ou personne de confiance habilitée), notif +
+  audit, `GET ?livingProfileId=` et `GET /mine`.
+  [`api/src/modules/access-grants/`](api/src/modules/access-grants/).
 
 - [ ] Les `Role` / `Permission` existent au niveau modèle et constantes
   partagées, mais pas de gestion avancée visible côté produit ni de

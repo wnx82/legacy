@@ -9,6 +9,19 @@ projet adhère au [Semantic Versioning](https://semver.org/lang/fr/).
 
 ### Ajouté
 
+- **Workflow d'accès après décès (`AccessGrant`)** (`feat/access-grants`,
+  2026-07-11, Europe/Brussels). Le modèle existait mais sans logique métier.
+  Ajout d'un module complet (`access-grants`) :
+  - `POST /access-grants` (demande, statut `PENDING`) ;
+  - `POST /access-grants/:id/activate` (activation par une autorité ou une
+    personne de confiance habilitée `canActivateAccess`, avec `activationReason`
+    et catégories autorisées) ;
+  - `POST /access-grants/:id/suspend` et `/revoke` ;
+  - `GET /access-grants?livingProfileId=` (autorité) et `GET /access-grants/mine`
+    (bénéficiaire) ;
+  - notification au bénéficiaire à l'activation, journalisation d'audit sur
+    chaque transition, refus par défaut (`assertCanManage`), anti-doublon.
+  - DTO/schemas Zod `access-grant.dto.ts` dans `@legacy/shared`, tests unitaires.
 - **Partage sécurisé des contacts et volontés du défunt vers la famille**
   (`feat/family-data-sharing`, 2026-07-11, Europe/Brussels). Les pages
   `web-family` « Contacts utiles » et « Volontés partagées » étaient en attente

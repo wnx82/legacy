@@ -6,6 +6,7 @@ export * from './constants/permissions';
 export * from './dto/organization.dto';
 export * from './dto/living-profile.dto';
 export * from './dto/death-case.dto';
+export * from './dto/access-grant.dto';
 export * from './dto/document.dto';
 export * from './dto/site.dto';
 export * from './types/api';
