@@ -9,6 +9,13 @@ projet adhère au [Semantic Versioning](https://semver.org/lang/fr/).
 
 ### Ajouté
 
+- **Sauvegardes chiffrées et restauration** (`ops/backups`, 2026-07-11,
+  Europe/Brussels) : `infra/scripts/backup.sh` (dumps PostgreSQL des 3 bases +
+  miroir MinIO, archive `tar.gz` chiffrée AES-256/PBKDF2, rétention
+  configurable) et `infra/scripts/restore.sh`. Documentation
+  [`docs/backup.md`](docs/backup.md) (automatisation cron, hors-site, rotation
+  de clé). Variable `BACKUP_ENCRYPTION_KEY` ajoutée à `.env.example`. Chemin
+  PostgreSQL (dump → chiffrement → déchiffrement) **testé** contre le conteneur.
 - **Tableau de bord d'audit** (`feat/audit-coverage`, 2026-07-11,
   Europe/Brussels) : endpoint `GET /audit-logs/summary` (total, 7 derniers
   jours, échecs, répartition par action/résultat) et page « Journal d'audit »
