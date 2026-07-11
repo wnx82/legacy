@@ -9,6 +9,19 @@ projet adhère au [Semantic Versioning](https://semver.org/lang/fr/).
 
 ### Ajouté
 
+- **Export RGPD complet et suppression de compte**
+  (`feat/rgpd-and-account-deletion`, 2026-07-11, Europe/Brussels). Chantiers de
+  Phase 2 désormais réels :
+  - `POST /exports/rgpd` → `RgpdExportProcessor` rassemble toutes les données
+    personnelles (compte, adhésions, consentements, dossier vivant complet,
+    journaux d'audit) en JSON, uploadé dans MinIO, téléchargeable via
+    `GET /exports/:id/download`. Aucun secret exporté.
+  - `DELETE /accounts/me` (confirmation `SUPPRIMER` requise) : suppression
+    transactionnelle du dossier vivant en cascade + purge des objets MinIO +
+    anonymisation de l'enregistrement `User` (intégrité des journaux d'audit et
+    dossiers décès préservée). Journalisé.
+  - Documentation `docs/rgpd.md` mise à jour ; action manuelle restante :
+    désactivation côté Keycloak.
 - **Workflow d'accès après décès (`AccessGrant`)** (`feat/access-grants`,
   2026-07-11, Europe/Brussels). Le modèle existait mais sans logique métier.
   Ajout d'un module complet (`access-grants`) :

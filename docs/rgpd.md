@@ -27,15 +27,29 @@ production réelle.
 | --- | --- |
 | Accès | `GET /auth/me`, `GET /living-profile` et endpoints associés |
 | Rectification | `PATCH` sur chaque ressource (dossier vivant, contacts, volontés…) |
-| Portabilité / export | `POST /exports/pdf` (PDF), `ExportJobType.RGPD_EXPORT` modélisé — **processeur d'export RGPD complet à implémenter en Phase 2** |
-| Effacement | Suppression de compte à implémenter en Phase 2 (job de suppression réelle des données liées, pas un simple flag) |
+| Portabilité / export | `POST /exports/pdf` (PDF), **`POST /exports/rgpd`** (export JSON complet via `RgpdExportProcessor`, résultat téléchargeable via `GET /exports/:id/download`) |
+| Effacement | **`DELETE /accounts/me`** (confirmation `SUPPRIMER` requise) : effacement réel du dossier vivant en cascade + purge MinIO + anonymisation du compte |
 | Opposition | Désactivation des notifications marketing via `Consent` |
 
-**État actuel (MVP) :** le schéma de données et les endpoints de lecture/
-écriture sont en place ; le job d'export RGPD complet et la suppression de
-compte en cascade (avec purge MinIO) sont des chantiers de Phase 2 — voir
-`roadmap.md`. Ne pas annoncer ces fonctionnalités comme actives auprès
-d'utilisateurs réels tant qu'elles ne sont pas implémentées.
+**État actuel :** l'export RGPD complet et la suppression de compte sont
+désormais **implémentés** (`feat/rgpd-and-account-deletion`).
+
+- **Export RGPD** (`api/src/modules/queue/processors/rgpd-export.processor.ts`) :
+  rassemble compte, adhésions, consentements, dossier vivant complet
+  (documents, volontés, contacts, patrimoine, assurances, abonnements, animaux)
+  et journaux d'audit dans un JSON, uploadé dans MinIO. Aucun secret (les mots
+  de passe sont gérés par Keycloak, jamais côté API).
+- **Suppression de compte** (`api/src/modules/accounts/accounts.service.ts`) :
+  suppression transactionnelle du dossier vivant (cascade Prisma) + des
+  notifications/consentements/adhésions/accès reçus, purge des objets MinIO
+  associés, puis **anonymisation** de l'enregistrement `User` (e-mail, noms,
+  téléphone, identifiant Keycloak neutralisés). L'anonymisation — plutôt qu'une
+  suppression physique — préserve l'intégrité des journaux d'audit et des
+  dossiers décès à conserver pour raisons légales, tout en effaçant l'identité.
+
+**Action manuelle restante :** désactiver le compte correspondant côté Keycloak
+(source de vérité de l'identité) — non automatisé dans ce dépôt (nécessite les
+accès admin Keycloak). Voir `deployment.md`.
 
 ## Sous-traitants et hébergement
 

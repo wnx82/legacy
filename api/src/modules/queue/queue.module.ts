@@ -4,6 +4,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { QUEUE_NAMES } from './queue.constants';
 import { PdfExportProcessor } from './processors/pdf-export.processor';
 import { ZipExportProcessor } from './processors/zip-export.processor';
+import { RgpdExportProcessor } from './processors/rgpd-export.processor';
 import { EmailsProcessor } from './processors/emails.processor';
 
 @Module({
@@ -18,11 +19,12 @@ import { EmailsProcessor } from './processors/emails.processor';
     BullModule.registerQueue(
       { name: QUEUE_NAMES.PDF_EXPORT },
       { name: QUEUE_NAMES.ZIP_EXPORT },
+      { name: QUEUE_NAMES.RGPD_EXPORT },
       { name: QUEUE_NAMES.EMAILS },
       { name: QUEUE_NAMES.NOTIFICATIONS },
     ),
   ],
-  providers: [PdfExportProcessor, ZipExportProcessor, EmailsProcessor],
+  providers: [PdfExportProcessor, ZipExportProcessor, RgpdExportProcessor, EmailsProcessor],
   exports: [BullModule],
 })
 export class QueueModule {}

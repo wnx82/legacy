@@ -18,6 +18,7 @@ import { ChecklistTemplatesModule } from './modules/checklist-templates/checklis
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { ExportsModule } from './modules/exports/exports.module';
 import { AccessGrantsModule } from './modules/access-grants/access-grants.module';
+import { AccountsModule } from './modules/accounts/accounts.module';
 import { StatsModule } from './modules/stats/stats.module';
 import { SiteModule } from './modules/site/site.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
@@ -53,6 +54,7 @@ import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
     NotificationsModule,
     ExportsModule,
     AccessGrantsModule,
+    AccountsModule,
     StatsModule,
     SiteModule,
   ],

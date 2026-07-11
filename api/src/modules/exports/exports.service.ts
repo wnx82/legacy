@@ -6,6 +6,7 @@ import { StorageService } from '../storage/storage.service';
 import { QUEUE_NAMES } from '../queue/queue.constants';
 import type { PdfExportJobData } from '../queue/processors/pdf-export.processor';
 import type { ZipExportJobData } from '../queue/processors/zip-export.processor';
+import type { RgpdExportJobData } from '../queue/processors/rgpd-export.processor';
 import { ExportJobStatus, ExportJobType } from '@legacy/database';
 
 @Injectable()
@@ -15,7 +16,17 @@ export class ExportsService {
     private readonly storage: StorageService,
     @InjectQueue(QUEUE_NAMES.PDF_EXPORT) private readonly pdfQueue: Queue<PdfExportJobData>,
     @InjectQueue(QUEUE_NAMES.ZIP_EXPORT) private readonly zipQueue: Queue<ZipExportJobData>,
+    @InjectQueue(QUEUE_NAMES.RGPD_EXPORT) private readonly rgpdQueue: Queue<RgpdExportJobData>,
   ) {}
+
+  /** Export RGPD complet (portabilité) des données de l'utilisateur courant. */
+  async requestRgpdExport(userId: string) {
+    const exportJob = await this.prisma.exportJob.create({
+      data: { requestedById: userId, type: ExportJobType.RGPD_EXPORT, status: ExportJobStatus.PENDING },
+    });
+    await this.rgpdQueue.add('generate', { exportJobId: exportJob.id, userId });
+    return exportJob;
+  }
 
   async requestPdfExport(
     requestedById: string,

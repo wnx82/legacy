@@ -23,6 +23,11 @@ export class ExportsController {
     return this.exportsService.requestZipExport(user.id, body.documentIds);
   }
 
+  @Post('rgpd')
+  requestRgpd(@CurrentUser() user: AuthenticatedUser) {
+    return this.exportsService.requestRgpdExport(user.id);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.exportsService.findOne(id, user.id);
