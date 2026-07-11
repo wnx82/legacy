@@ -10,6 +10,13 @@ import { UserRole } from '@legacy/shared';
 export class AuditLogsController {
   constructor(private readonly auditLogsService: AuditLogsService) {}
 
+  @Get('summary')
+  @Roles(UserRole.SUPER_ADMIN, UserRole.FUNERAL_HOME_ADMIN)
+  @ApiOperation({ summary: "Agrégats du journal d'audit (tableau de bord)" })
+  summary(@Query('organizationId') organizationId?: string) {
+    return this.auditLogsService.summary({ organizationId });
+  }
+
   @Get()
   @Roles(UserRole.SUPER_ADMIN, UserRole.FUNERAL_HOME_ADMIN)
   @ApiOperation({ summary: "Consulter le journal d'audit (accès restreint)" })

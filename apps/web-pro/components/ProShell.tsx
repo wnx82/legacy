@@ -8,6 +8,7 @@ const NAV_ITEMS = [
   { label: 'Tableau de bord', href: '/dashboard' },
   { label: 'Dossiers décès', href: '/dossiers' },
   { label: 'Statistiques', href: '/statistiques' },
+  { label: "Journal d'audit", href: '/journal' },
   { label: 'Collaborateurs', href: '/collaborateurs' },
   { label: 'Modèles de messages', href: '/modeles-messages' },
   { label: 'Modèles de checklist', href: '/modeles-checklist' },
