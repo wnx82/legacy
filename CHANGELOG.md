@@ -7,6 +7,14 @@ projet adhère au [Semantic Versioning](https://semver.org/lang/fr/).
 
 ## [Unreleased]
 
+### Sécurité (dépendances)
+
+- **Mise à jour `nodemailer` 6 → 7** (`security/dependency-updates`, 2026-07-11)
+  corrigeant l'avis « e-mail vers un domaine non intentionnel ». Build, tests et
+  démarrage re-vérifiés. Les autres vulnérabilités restantes (`pnpm audit`) sont
+  transitives ou concernent une montée majeure de Next.js (14 → 15) nécessitant
+  une campagne de tests dédiée — voir `docs/AUDIT_FINAL.md` (statut « Accepté »).
+
 ### Ajouté (RBAC)
 
 - **Catalogue de permissions fines alimenté** (`refactor/rbac-permission-catalog`,
