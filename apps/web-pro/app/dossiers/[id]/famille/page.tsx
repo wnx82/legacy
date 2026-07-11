@@ -18,6 +18,7 @@ export default function DossierFamillePage({ params }: { params: { id: string } 
   const api = useApiClient();
   const [invites, setInvites] = useState<FamilyInvite[]>([]);
   const [form, setForm] = useState({ email: '', firstName: '', lastName: '', relationship: '' });
+  const inputClassName = 'w-full rounded-md border border-gray-300 p-2.5';
 
   function refresh() {
     api.get<FamilyInvite[]>(`/death-cases/${params.id}/family`).then(setInvites);
@@ -39,33 +40,56 @@ export default function DossierFamillePage({ params }: { params: { id: string } 
         <DossierTabs id={params.id} />
       </div>
 
-      <form onSubmit={handleInvite} className="mt-6 flex flex-wrap gap-3 rounded-lg border border-gray-200 p-4">
-        <input
-          required
-          placeholder="E-mail du proche"
-          value={form.email}
-          onChange={(e) => setForm({ ...form, email: e.target.value })}
-          className="rounded-md border border-gray-300 p-2.5"
-        />
-        <input
-          placeholder="Prénom"
-          value={form.firstName}
-          onChange={(e) => setForm({ ...form, firstName: e.target.value })}
-          className="rounded-md border border-gray-300 p-2.5"
-        />
-        <input
-          placeholder="Nom"
-          value={form.lastName}
-          onChange={(e) => setForm({ ...form, lastName: e.target.value })}
-          className="rounded-md border border-gray-300 p-2.5"
-        />
-        <input
-          placeholder="Lien de parenté"
-          value={form.relationship}
-          onChange={(e) => setForm({ ...form, relationship: e.target.value })}
-          className="rounded-md border border-gray-300 p-2.5"
-        />
-        <Button type="submit">Inviter</Button>
+      <form onSubmit={handleInvite} className="mt-6 rounded-lg border border-gray-200 p-4" aria-describedby="invite-help">
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+          <label className="space-y-1">
+            <span className="text-sm font-medium text-midnight">E-mail du proche</span>
+            <input
+              required
+              type="email"
+              autoComplete="email"
+              placeholder="E-mail du proche"
+              value={form.email}
+              onChange={(e) => setForm({ ...form, email: e.target.value })}
+              className={inputClassName}
+            />
+          </label>
+          <label className="space-y-1">
+            <span className="text-sm font-medium text-midnight">Prénom</span>
+            <input
+              autoComplete="given-name"
+              placeholder="Prénom"
+              value={form.firstName}
+              onChange={(e) => setForm({ ...form, firstName: e.target.value })}
+              className={inputClassName}
+            />
+          </label>
+          <label className="space-y-1">
+            <span className="text-sm font-medium text-midnight">Nom</span>
+            <input
+              autoComplete="family-name"
+              placeholder="Nom"
+              value={form.lastName}
+              onChange={(e) => setForm({ ...form, lastName: e.target.value })}
+              className={inputClassName}
+            />
+          </label>
+          <label className="space-y-1">
+            <span className="text-sm font-medium text-midnight">Lien de parenté</span>
+            <input
+              placeholder="Lien de parenté"
+              value={form.relationship}
+              onChange={(e) => setForm({ ...form, relationship: e.target.value })}
+              className={inputClassName}
+            />
+          </label>
+        </div>
+        <div className="mt-4 flex items-center justify-between gap-3">
+          <p id="invite-help" className="text-sm text-gray-500">
+            Une invitation sécurisée sera envoyée automatiquement à cette adresse.
+          </p>
+          <Button type="submit">Inviter</Button>
+        </div>
       </form>
 
       <p className="mt-3 text-xs text-gray-400">

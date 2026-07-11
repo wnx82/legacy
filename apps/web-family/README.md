@@ -16,14 +16,12 @@ pnpm --filter @legacy/web-family dev
   pour accéder à un dossier, ce qui permet la traçabilité des accès exigée
   par `docs/security.md`.
 - **Sélection du dossier via lien d'invitation** (`lib/use-family-case.ts`) :
-  le lien envoyé par la pompe funèbre contient `?dossier=<id>`, mémorisé en
-  local. Une vraie association utilisateur ↔ dossier(s) multiple est prévue
-  en Phase 2 (voir `docs/roadmap.md`) une fois le flux d'invitation par
-  e-mail réellement branché.
+  après acceptation d'une invitation `/invitation?token=...`, l'identifiant du
+  dossier décès est mémorisé localement pour simplifier les visites suivantes.
+  La gestion multi-dossiers pour un même proche reste un chantier ultérieur.
 - **Navigation horizontale simple** plutôt qu'une sidebar : le public visé
   (familles en deuil, souvent peu technophiles) bénéficie d'un parcours plus
   direct et moins dense que le portail professionnel.
-- **Contacts utiles et volontés partagées** : pages présentes mais en attente
-  d'un endpoint API dédié pour exposer en toute sécurité les données du
-  dossier vivant du défunt à la famille (voir commentaires dans le code et
-  `docs/roadmap.md`).
+- **Contacts utiles et volontés partagées** : pages reliées à des endpoints
+  API dédiés (`GET /death-cases/:id/contacts`, `GET /death-cases/:id/wishes`)
+  qui ne renvoient que les données explicitement partageables avec la famille.

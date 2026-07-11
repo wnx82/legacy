@@ -1,100 +1,55 @@
 # TODO
 
-État du projet audité le 2026-07-11 à partir du code du dépôt. Il n'y avait
-pas de `todo.md` local ; ce fichier sert donc de suivi opérationnel compact,
-complémentaire à [`docs/roadmap.md`](docs/roadmap.md).
+État du projet audité sur le code présent dans ce dépôt le 2026-07-11.
+Ce fichier remplace l'ancien suivi devenu obsolète.
 
-## À faire en priorité avant usage réel
+## Priorité haute
 
-- [x] Implémenter le rendu réel des exports PDF/ZIP. **(fait — `feat/exports-rendering`)**
-  Workers réels : `pdfkit` (PDF dossier vivant / décès) et `archiver` (ZIP en
-  streaming depuis MinIO), upload MinIO, statut `ExportJob` géré, endpoint de
-  téléchargement signé `GET /exports/:id/download` réservé au demandeur.
-  [`api/src/modules/queue/processors/pdf-export.processor.ts`](api/src/modules/queue/processors/pdf-export.processor.ts),
-  [`api/src/modules/queue/processors/zip-export.processor.ts`](api/src/modules/queue/processors/zip-export.processor.ts).
+- [ ] Rejouer les parcours e2e avec la stack complète.
+  À valider quand Keycloak et MinIO tournent réellement ensemble :
+  connexion complète, invitation famille bout à bout, upload/scan/download de
+  documents, export PDF/ZIP/RGPD avec objets réellement stockés.
 
-- [x] Brancher un vrai flux d'invitation famille par e-mail. **(fait — `feat/family-invitations-email`)**
-  E-mail HTML envoyé via la file `emails`, jeton fort, endpoints
-  `GET /family-invites/:token` + `POST /family-invites/:token/accept`, page
-  `web-family/invitation`. Plus de lien `?dossier=<id>` manuel.
-  [`api/src/modules/death-cases/death-cases.service.ts`](api/src/modules/death-cases/death-cases.service.ts),
-  [`api/src/modules/death-cases/family-invites.controller.ts`](api/src/modules/death-cases/family-invites.controller.ts),
-  [`apps/web-family/app/invitation/page.tsx`](apps/web-family/app/invitation/page.tsx).
+- [ ] Vérifier l'exécution réelle de l'app Flutter sur machine équipée.
+  Le flux OIDC desktop est implémenté, mais le SDK Flutter n'est pas présent
+  dans cet environnement pour l'exécuter à chaud.
 
-- [x] Exposer à la famille les contacts utiles et volontés partagées du
-  dossier vivant lié au dossier décès. **(fait — `feat/family-data-sharing`)**
-  Endpoints `GET /death-cases/:id/contacts` et `/wishes` avec contrôle d'accès
-  `assertCanAccessDeathCase` (pro ou proche à invitation acceptée, anti-IDOR).
-  Pages `web-family` reliées (états chargement/vide/erreur).
-  [`apps/web-family/app/dossier/contacts/page.tsx`](apps/web-family/app/dossier/contacts/page.tsx),
-  [`apps/web-family/app/dossier/volontes/page.tsx`](apps/web-family/app/dossier/volontes/page.tsx).
+- [ ] Planifier la montée Next.js `14 -> 15`.
+  Le dépôt est stable aujourd'hui, mais la montée majeure reste un chantier de
+  sécurité/maintenance à traiter avec campagne de non-régression dédiée.
 
-- [x] Authentification OIDC desktop (Flutter). **(fait — `feat/flutter-desktop-oidc`)**
-  Flux loopback PKCE (RFC 8252) : serveur local, navigateur système, échange
-  code→token. Code complet ; **non vérifié à l'exécution** (SDK Flutter absent
-  de l'environnement) — à tester sur machine desktop équipée.
-  [`apps/app/lib/services/auth_service.dart`](apps/app/lib/services/auth_service.dart).
+## Priorité moyenne
 
-- [x] Vérifier et dater les formalités belges par défaut. **(fait — 2026-07-11)**
-  Checklist et guides revus sur belgium.be, notaire.be, SPF Finances ;
-  descriptions + délais légaux ajoutés ; sources et date dans `docs/product.md`.
-  Seed vérifié (exécution OK). Redater à chaque révision.
-  [`database/seed/seed.ts`](database/seed/seed.ts),
-  [`docs/product.md`](docs/product.md).
+- [ ] Ajouter de vrais tests d'intégration/e2e automatisés.
+  Les tests unitaires et de service sont déjà bons, mais la couverture des
+  parcours transverses peut encore monter, surtout autour de Keycloak, MinIO
+  et BullMQ.
 
-## Partiellement en place, mais pas réellement terminés
+- [ ] Finaliser l'UI de permissions fines côté portail pro.
+  Le catalogue `Role` / `Permission` existe et le seed est prêt ; il manque la
+  composition produit de rôles personnalisés.
 
-- [x] `AccessGrant` : flux métier complet. **(fait — `feat/access-grants`)**
-  Module `access-grants` : demande / activation / suspension / révocation,
-  autorisation stricte (autorité ou personne de confiance habilitée), notif +
-  audit, `GET ?livingProfileId=` et `GET /mine`.
-  [`api/src/modules/access-grants/`](api/src/modules/access-grants/).
+- [ ] Renforcer le chiffrement applicatif des champs les plus sensibles.
+  Le stockage et les flux sont déjà cadrés, mais certains champs métier
+  sensibles méritent encore un chiffrement applicatif dédié.
 
-- [x] `Role` / `Permission` : catalogue alimenté + périmètre clarifié. **(fait — `refactor/rbac-permission-catalog`)**
-  Les 12 permissions fines sont désormais **semées** et prêtes à composer des
-  rôles personnalisés. **Périmètre assumé** : l'UI de composition de rôles reste
-  un chantier ultérieur ; les décisions d'accès sensibles s'appuient sur les
-  rôles plateforme (refus par défaut), donc sans dépendance à cette UI.
-  Justification et détails : [`docs/security.md`](docs/security.md) (RBAC à deux niveaux).
+## Déjà en place
 
-- [x] Audit logs : couverture élargie + tableau de bord dédié. **(fait — `feat/audit-coverage`)**
-  `GET /audit-logs/summary` (agrégats) + page « Journal d'audit » du portail pro.
-  Journalisation ajoutée (notes, accès, invitations, exports, comptes, documents).
-  [`apps/web-pro/app/journal/page.tsx`](apps/web-pro/app/journal/page.tsx).
-
-- [x] Export RGPD complet + suppression de compte en cascade. **(fait — `feat/rgpd-and-account-deletion`)**
-  `POST /exports/rgpd` (JSON complet via `RgpdExportProcessor`) et
-  `DELETE /accounts/me` (cascade dossier vivant + purge MinIO + anonymisation).
-  Action manuelle restante : désactivation Keycloak.
-  [`docs/rgpd.md`](docs/rgpd.md),
-  [`api/src/modules/accounts/`](api/src/modules/accounts/).
-
-- [x] Scan antivirus des documents uploadés. **(fait — `feat/document-antivirus-scan`)**
-  `POST /documents/:id/confirm` → checksum SHA-256 réel + scan clamd (INSTREAM),
-  purge si infecté. Statut `Document.scanStatus`. Sans `CLAMAV_HOST` : `SKIPPED`.
-  Migration `add_document_scan_status`.
-
-- [x] Sauvegardes chiffrées automatisées. **(fait — `ops/backups`)**
-  `infra/scripts/backup.sh` (PostgreSQL + MinIO, AES-256) et `restore.sh`,
-  doc `docs/backup.md` (cron, hors-site, rotation). Chemin PostgreSQL testé.
-
-## Ce qui est bien déjà en place
-
-- [x] Monorepo exécutable localement avec `website`, `web-pro`, `web-family`,
-  `api`, `database`, `infra`.
-- [x] Authentification Keycloak sur les apps web, avec base de rôles.
-- [x] App Flutter avec les écrans principaux et auth mobile.
-- [x] Dossiers décès, checklist, documents, notes/messages, statistiques et
-  modèles de checklist côté API / portail pro.
-- [x] Infrastructure locale Docker Compose complète avec PostgreSQL, Redis,
-  MinIO, Keycloak, Umami et Mailhog.
-- [x] Pipeline d'exports asynchrones déjà structuré, même si le rendu réel
-  reste à brancher.
+- [x] Exports PDF/ZIP réels avec workers BullMQ.
+- [x] Export RGPD JSON et suppression de compte (anonymisation + purge MinIO).
+- [x] Invitations famille par e-mail avec acceptation sécurisée.
+- [x] Exposition sécurisée des contacts et volontés partagés à la famille.
+- [x] `AccessGrant` avec demande, activation, suspension, révocation.
+- [x] Checksum SHA-256 réel et scan antivirus post-upload.
+- [x] Sauvegarde/restauration chiffrées documentées.
+- [x] Audit logs et tableau de bord d'audit.
+- [x] Améliorations d'accessibilité des formulaires publics et d'invitation.
+- [x] Renfort de la couverture de tests sur invitations famille et exports.
 
 ## Lecture honnête du statut
 
-Le projet est bien un MVP/scaffold solide, pas une version réellement prête à
-la production. Le plus gros écart entre "présent dans le code" et "vraiment en
-place" concerne surtout les exports finaux, les invitations famille bout à
-bout, le partage sécurisé des données du défunt vers la famille, et plusieurs
-chantiers sécurité/RGPD encore au stade de modélisation.
+Le dépôt est désormais bien plus proche d'une version `1.1.x` solide que d'un
+simple scaffold MVP. Les principaux écarts restants concernent surtout la
+vérification en environnement complet, la montée de dépendances majeures et
+quelques chantiers de durcissement/produit non bloquants pour le développement
+local.

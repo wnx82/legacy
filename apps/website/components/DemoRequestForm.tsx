@@ -6,6 +6,7 @@ import { postJson } from '../lib/api';
 
 export function DemoRequestForm() {
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
+  const inputClassName = 'w-full rounded-md border border-gray-300 p-3';
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -36,7 +37,7 @@ export function DemoRequestForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-4" aria-describedby="demo-form-help">
       {/* Pot de miel anti-spam : masqué et non focusable, ne doit jamais être rempli. */}
       <div aria-hidden="true" className="absolute left-[-9999px] h-0 w-0 overflow-hidden">
         <label>
@@ -44,20 +45,48 @@ export function DemoRequestForm() {
           <input name="website" type="text" tabIndex={-1} autoComplete="off" />
         </label>
       </div>
+      <p id="demo-form-help" className="text-sm text-gray-500">
+        Les informations de contact sont utilisées uniquement pour organiser votre démonstration.
+      </p>
       <div className="grid gap-4 sm:grid-cols-2">
-        <input name="firstName" required placeholder="Prénom" className="rounded-md border border-gray-300 p-3" />
-        <input name="lastName" required placeholder="Nom" className="rounded-md border border-gray-300 p-3" />
+        <label className="space-y-1">
+          <span className="text-sm font-medium text-midnight">Prénom</span>
+          <input name="firstName" required autoComplete="given-name" placeholder="Prénom" className={inputClassName} />
+        </label>
+        <label className="space-y-1">
+          <span className="text-sm font-medium text-midnight">Nom</span>
+          <input name="lastName" required autoComplete="family-name" placeholder="Nom" className={inputClassName} />
+        </label>
       </div>
-      <input name="email" type="email" required placeholder="E-mail professionnel" className="w-full rounded-md border border-gray-300 p-3" />
-      <input name="phone" placeholder="Téléphone (optionnel)" className="w-full rounded-md border border-gray-300 p-3" />
-      <input name="organizationName" placeholder="Nom de votre entreprise" className="w-full rounded-md border border-gray-300 p-3" />
-      <textarea name="message" rows={4} placeholder="Votre besoin (optionnel)" className="w-full rounded-md border border-gray-300 p-3" />
+      <label className="block space-y-1">
+        <span className="text-sm font-medium text-midnight">E-mail professionnel</span>
+        <input
+          name="email"
+          type="email"
+          required
+          autoComplete="email"
+          placeholder="E-mail professionnel"
+          className={inputClassName}
+        />
+      </label>
+      <label className="block space-y-1">
+        <span className="text-sm font-medium text-midnight">Téléphone (optionnel)</span>
+        <input name="phone" autoComplete="tel" placeholder="Téléphone (optionnel)" className={inputClassName} />
+      </label>
+      <label className="block space-y-1">
+        <span className="text-sm font-medium text-midnight">Nom de votre entreprise</span>
+        <input name="organizationName" placeholder="Nom de votre entreprise" className={inputClassName} />
+      </label>
+      <label className="block space-y-1">
+        <span className="text-sm font-medium text-midnight">Votre besoin (optionnel)</span>
+        <textarea name="message" rows={4} placeholder="Votre besoin (optionnel)" className={inputClassName} />
+      </label>
       {status === 'error' && (
-        <Alert tone="danger" title="Une erreur est survenue">
+        <Alert tone="danger" title="Une erreur est survenue" role="alert">
           Merci de réessayer dans quelques instants.
         </Alert>
       )}
-      <Button type="submit" disabled={status === 'submitting'}>
+      <Button type="submit" disabled={status === 'submitting'} aria-busy={status === 'submitting'}>
         {status === 'submitting' ? 'Envoi…' : 'Demander une démo'}
       </Button>
     </form>

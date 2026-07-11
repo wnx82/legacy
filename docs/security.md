@@ -68,9 +68,11 @@ processus prudent et non automatique :
   accès total par défaut.
 - Expiration possible (`expiresAt`).
 
-L'implémentation des endpoints d'activation/validation est prévue en
-Phase 2 (voir `roadmap.md`) — le schéma de données et les garanties de
-traçabilité sont en place dès le MVP.
+Les endpoints et workflows sont désormais en place (`access-grants`):
+demande (`POST /access-grants`), activation, suspension, révocation, liste
+des accès d'un dossier vivant et liste des accès actifs du bénéficiaire.
+Chaque transition sensible est journalisée et les activations déclenchent une
+notification.
 
 ## Audit
 
@@ -113,5 +115,5 @@ n'interrompt jamais l'action métier (voir le commentaire dans
 ## Ce qui reste à renforcer (Phase 2)
 
 Voir `roadmap.md` — chiffrement applicatif renforcé des champs les plus
-sensibles (ex: `nationalNumber`), rotation des secrets, scan antivirus des
-documents uploadés, sauvegardes chiffrées automatisées, export RGPD complet.
+sensibles (ex: `nationalNumber`), rotation des secrets, montée de dépendances
+majeures, et vérifications e2e complètes sur environnement intégré.

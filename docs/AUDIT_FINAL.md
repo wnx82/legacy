@@ -17,7 +17,7 @@ vérification.
 | --- | --- | --- |
 | Types | `pnpm typecheck` | ✅ 7/7 packages |
 | Lint | `pnpm lint` | ✅ 5/5 packages |
-| Tests | `pnpm test` | ✅ 23 tests (20 API + 3 shared) |
+| Tests | `pnpm test` | ✅ 30 tests (27 API + 3 shared) |
 | Build production | `pnpm build` | ✅ 5/5 packages |
 | Migrations | `prisma migrate status` | ✅ 2 migrations, base à jour |
 | Démarrage API réel | `node dist/main.js` + `curl` | ✅ boot, `/health`, `/api/docs` |
@@ -95,8 +95,10 @@ fines (cache HTTP, pagination généralisée) non prioritaires à ce stade.
 ### 3.5 UX / accessibilité / responsive
 
 États de chargement/vide/erreur ajoutés aux nouvelles pages famille et au
-journal d'audit ; tableaux `overflow-x` pour le mobile ; contenu francophone.
-Audit lecteur d'écran non rejoué automatiquement (non vérifié).
+journal d'audit ; tableaux `overflow-x` pour le mobile ; contenu francophone ;
+formulaires publics et d'invitation correctement étiquetés (`label`,
+`autocomplete`, aides textuelles). Audit lecteur d'écran complet non rejoué
+automatiquement (non vérifié).
 
 ### 3.6 Production
 
@@ -116,16 +118,16 @@ Production 2,5 %.
 | Fonctionnalités | 88 | Tous les items `todo.md` livrés et vérifiés au niveau API ; parcours Keycloak/MinIO non rejoués de bout en bout. |
 | Sécurité | 85 | Durcissement large et vérifié (IDOR, en-têtes, anti-spam, antivirus, RGPD) ; montée majeure Next.js en attente. |
 | Qualité du code | 82 | Lint opérationnel, architecture propre, DTO partagés ; dette majeure de dépendances restante. |
-| Tests | 72 | 23 tests unitaires ciblés (sécurité, RGPD, exports, antivirus) + smoke test API réel ; peu d'e2e/intégration automatisés. |
+| Tests | 78 | 30 tests ciblés (sécurité, RGPD, exports, invitations famille, antivirus) + smoke test API réel ; l'e2e intégré reste à compléter. |
 | Performance | 78 | Uploads directs, exports async/streaming, index présents ; pas de mesure avant/après formelle. |
-| Accessibilité | 70 | États UI et responsive soignés ; pas d'audit lecteur d'écran automatisé. |
-| Documentation | 90 | README, CHANGELOG horodaté, docs sécurité/RGPD/backup/product à jour, cet audit. |
+| Accessibilité | 76 | États UI et responsive soignés ; formulaires mieux étiquetés ; audit lecteur d'écran complet encore à rejouer. |
+| Documentation | 91 | README, CHANGELOG horodaté, docs sécurité/RGPD/backup/product et TODO réalignés, audit cohérent avec le code. |
 | Production | 68 | Sauvegarde/restauration + healthcheck + audit ; déploiement réel non effectué ici. |
 
 **Score global pondéré :**
-`0.25×88 + 0.25×85 + 0.15×82 + 0.15×72 + 0.075×78 + 0.05×70 + 0.05×90 + 0.025×68`
-= `22.0 + 21.25 + 12.30 + 10.80 + 5.85 + 3.50 + 4.50 + 1.70`
-= **81.9 / 100**.
+`0.25×88 + 0.25×85 + 0.15×82 + 0.15×78 + 0.075×78 + 0.05×76 + 0.05×91 + 0.025×68`
+= `22.0 + 21.25 + 12.30 + 11.70 + 5.85 + 3.80 + 4.55 + 1.70`
+= **83.15 / 100**.
 
 ## 5. Éléments restant à faire (blocages externes / non vérifiables ici)
 

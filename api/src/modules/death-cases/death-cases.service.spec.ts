@@ -1,5 +1,5 @@
 import { Test } from '@nestjs/testing';
-import { ForbiddenException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException } from '@nestjs/common';
 import { DeathCasesService } from './death-cases.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { DocumentsService } from '../documents/documents.service';
@@ -8,12 +8,15 @@ import { ConfigService } from '@nestjs/config';
 import { getQueueToken } from '@nestjs/bullmq';
 import { QUEUE_NAMES } from '../queue/queue.constants';
 import type { AuthenticatedUser } from '@legacy/shared';
+import { InvitationStatus } from '@legacy/database';
 
 describe('DeathCasesService — contrôle d\'accès famille', () => {
   let service: DeathCasesService;
+  const emailsQueue = { add: jest.fn() };
+  const auditLogs = { log: jest.fn() };
   const prismaMock = {
     deathCase: { findUnique: jest.fn(), findMany: jest.fn() },
-    familyInvite: { findFirst: jest.fn() },
+    familyInvite: { findFirst: jest.fn(), create: jest.fn(), findUnique: jest.fn(), update: jest.fn() },
     contact: { findMany: jest.fn() },
     wish: { findMany: jest.fn() },
   };
@@ -42,12 +45,23 @@ describe('DeathCasesService — contrôle d\'accès famille', () => {
         DeathCasesService,
         { provide: PrismaService, useValue: prismaMock },
         { provide: DocumentsService, useValue: {} },
-        { provide: AuditLogsService, useValue: { log: jest.fn() } },
-        { provide: ConfigService, useValue: { get: jest.fn() } },
-        { provide: getQueueToken(QUEUE_NAMES.EMAILS), useValue: { add: jest.fn() } },
+        { provide: AuditLogsService, useValue: auditLogs },
+        { provide: ConfigService, useValue: { get: jest.fn((key: string) => (key === 'WEB_FAMILY_URL' ? 'http://localhost:3003' : undefined)) } },
+        { provide: getQueueToken(QUEUE_NAMES.EMAILS), useValue: emailsQueue },
       ],
     }).compile();
     service = moduleRef.get(DeathCasesService);
+    prismaMock.familyInvite.create.mockResolvedValue({
+      id: 'inv-1',
+      deathCaseId: 'dc-1',
+      email: 'proche@example.com',
+      firstName: 'Proche',
+      lastName: 'Test',
+      relationship: 'Fils',
+      status: InvitationStatus.PENDING,
+      token: 'secret-token',
+      expiresAt: new Date('2026-07-25T10:00:00Z'),
+    });
     prismaMock.deathCase.findUnique.mockResolvedValue({ id: 'dc-1', linkedLivingProfileId: 'lp-1' });
   });
 
@@ -73,5 +87,68 @@ describe('DeathCasesService — contrôle d\'accès famille', () => {
     expect(prismaMock.contact.findMany).toHaveBeenCalledWith(
       expect.objectContaining({ where: { livingProfileId: 'lp-1', visibleToFamily: true } }),
     );
+  });
+
+  it("crée une invitation famille et enfile l'e-mail sans exposer le token", async () => {
+    prismaMock.deathCase.findUnique.mockResolvedValue({
+      id: 'dc-1',
+      deceasedFirstName: 'Jean',
+      deceasedLastName: 'Dupont',
+      organization: { name: 'Pompes Funèbres Horizon' },
+    });
+
+    const invite = await service.inviteFamilyMember(
+      'dc-1',
+      { email: 'proche@example.com', firstName: 'Proche', lastName: 'Test', relationship: 'Fils' },
+      'u-pro',
+    );
+
+    expect(prismaMock.familyInvite.create).toHaveBeenCalled();
+    expect(emailsQueue.add).toHaveBeenCalledWith(
+      'family-invite',
+      expect.objectContaining({
+        to: 'proche@example.com',
+        subject: expect.stringContaining('Jean Dupont'),
+        html: expect.stringContaining('/invitation?token='),
+      }),
+    );
+    expect(invite).not.toHaveProperty('token');
+  });
+
+  it("accepte une invitation valide et renvoie le dossier associé", async () => {
+    prismaMock.familyInvite.findUnique.mockResolvedValue({
+      id: 'inv-1',
+      token: 'secret-token',
+      deathCaseId: 'dc-1',
+      status: InvitationStatus.PENDING,
+      expiresAt: new Date('2026-07-25T10:00:00Z'),
+    });
+    prismaMock.familyInvite.update.mockResolvedValue({ id: 'inv-1', status: InvitationStatus.ACCEPTED });
+
+    const result = await service.acceptFamilyInvite('secret-token', 'u-fam');
+
+    expect(prismaMock.familyInvite.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { token: 'secret-token' },
+        data: expect.objectContaining({ status: InvitationStatus.ACCEPTED }),
+      }),
+    );
+    expect(result).toEqual({ deathCaseId: 'dc-1' });
+  });
+
+  it("refuse une invitation expirée et la marque comme telle", async () => {
+    prismaMock.familyInvite.findUnique.mockResolvedValue({
+      id: 'inv-1',
+      token: 'expired-token',
+      deathCaseId: 'dc-1',
+      status: InvitationStatus.PENDING,
+      expiresAt: new Date('2026-07-01T10:00:00Z'),
+    });
+
+    await expect(service.acceptFamilyInvite('expired-token', 'u-fam')).rejects.toThrow(BadRequestException);
+    expect(prismaMock.familyInvite.update).toHaveBeenCalledWith({
+      where: { token: 'expired-token' },
+      data: { status: InvitationStatus.EXPIRED },
+    });
   });
 });
