@@ -172,8 +172,33 @@ const BELGIAN_DEFAULT_CHECKLIST = [
   },
 ];
 
+// Catalogue de permissions fines (aligné sur packages/shared/src/constants/
+// permissions.ts) : les rôles personnalisés d'une organisation s'appuient
+// dessus, en complément des 7 rôles plateforme de base.
+const PERMISSION_CATALOG: { key: string; description: string }[] = [
+  { key: 'death_case.read', description: "Consulter les dossiers décès" },
+  { key: 'death_case.write', description: "Créer et modifier les dossiers décès" },
+  { key: 'death_case.archive', description: "Archiver un dossier décès" },
+  { key: 'document.read', description: "Consulter les documents" },
+  { key: 'document.download', description: "Télécharger les documents" },
+  { key: 'document.delete', description: "Supprimer un document" },
+  { key: 'checklist_template.manage', description: "Gérer les modèles de checklist" },
+  { key: 'organization.members.manage', description: "Gérer les collaborateurs de l'organisation" },
+  { key: 'organization.settings.manage', description: "Gérer les paramètres de l'organisation" },
+  { key: 'family.invite', description: "Inviter des proches sur un dossier" },
+  { key: 'audit_log.read', description: "Consulter le journal d'audit" },
+  { key: 'export.create', description: "Générer des exports (PDF, ZIP, RGPD)" },
+];
+
 async function main() {
   console.log('Seed Legacy — démarrage');
+
+  // Catalogue de permissions (idempotent).
+  await Promise.all(
+    PERMISSION_CATALOG.map((p) =>
+      prisma.permission.upsert({ where: { key: p.key }, update: { description: p.description }, create: p }),
+    ),
+  );
 
   const categories = await Promise.all(
     DOCUMENT_CATEGORIES.map((c) =>

@@ -7,6 +7,15 @@ projet adhère au [Semantic Versioning](https://semver.org/lang/fr/).
 
 ## [Unreleased]
 
+### Ajouté (RBAC)
+
+- **Catalogue de permissions fines alimenté** (`refactor/rbac-permission-catalog`,
+  2026-07-11) : les 12 permissions (`death_case.read`, `document.download`,
+  `export.create`, …) sont désormais semées et prêtes à composer des rôles
+  personnalisés. Périmètre assumé documenté (`docs/security.md`, RBAC à deux
+  niveaux) : l'UI de composition reste un chantier ultérieur, les décisions
+  d'accès sensibles restant portées par les rôles plateforme (refus par défaut).
+
 ### Corrigé
 
 - **Démarrage de l'API** (`fix/express-dependency`, 2026-07-11,
