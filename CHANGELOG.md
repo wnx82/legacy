@@ -7,6 +7,20 @@ projet adhère au [Semantic Versioning](https://semver.org/lang/fr/).
 
 ## [Unreleased]
 
+### Sécurité
+
+- **Durcissement applicatif** (`security/hardening`, 2026-07-11,
+  Europe/Brussels) :
+  - Helmet renforcé : CSP stricte, HSTS en production, `Referrer-Policy`,
+    `Cross-Origin-Resource-Policy`, suppression de `X-Powered-By` ;
+  - `trust proxy` (vraie IP derrière le reverse proxy) et limite de taille des
+    corps de requête (256 Ko) ;
+  - **correctif IDOR** : lecture d'un dossier décès / checklist / documents
+    réservée à un professionnel ou un proche à invitation acceptée
+    (`assertCanAccessDeathCase`) ; `GET /death-cases/:id/family` réservé au pro ;
+  - formulaires publics : **pot de miel** anti-spam (`website`) + **rate limit
+    serré (5/min/IP)** sur `/contact` et `/demo-request`.
+
 ### Ajouté
 
 - **Export RGPD complet et suppression de compte**
