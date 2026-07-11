@@ -7,6 +7,19 @@ projet adhère au [Semantic Versioning](https://semver.org/lang/fr/).
 
 ## [Unreleased]
 
+### Outillage
+
+- **Lint opérationnel sur tout le monorepo** (`chore/tooling-lint`, 2026-07-11,
+  Europe/Brussels). Le gate `pnpm lint` était cassé : l'API n'avait aucune
+  dépendance ESLint et les trois apps Next.js n'avaient pas de configuration,
+  ce qui déclenchait un prompt interactif (et un segfault sous WSL). Ajout de :
+  - ESLint + `@typescript-eslint` + `eslint-config-prettier` et
+    `api/.eslintrc.json` pour l'API ;
+  - `eslint-config-next` et `.eslintrc.json` (règle `react/no-unescaped-entities`
+    désactivée, contenu francophone) pour `website`, `web-pro`, `web-family` ;
+  - script racine `format:check` (Prettier en mode vérification).
+  Résultat : `pnpm lint` passe désormais proprement (exit 0).
+
 ## [1.0.3] - 2026-07-01
 
 ### Modifié
