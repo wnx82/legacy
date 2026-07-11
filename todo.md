@@ -29,12 +29,11 @@ complémentaire à [`docs/roadmap.md`](docs/roadmap.md).
   [`apps/web-family/app/dossier/contacts/page.tsx`](apps/web-family/app/dossier/contacts/page.tsx),
   [`apps/web-family/app/dossier/volontes/page.tsx`](apps/web-family/app/dossier/volontes/page.tsx).
 
-- [ ] Finaliser l'authentification OpenID Connect desktop dans l'app Flutter
-  (Windows/macOS/Linux).
-  Le flux mobile est en place, mais le callback local desktop n'est pas encore
-  implémenté :
-  [`apps/app/lib/services/auth_service.dart`](apps/app/lib/services/auth_service.dart),
-  [`apps/app/README.md`](apps/app/README.md).
+- [x] Authentification OIDC desktop (Flutter). **(fait — `feat/flutter-desktop-oidc`)**
+  Flux loopback PKCE (RFC 8252) : serveur local, navigateur système, échange
+  code→token. Code complet ; **non vérifié à l'exécution** (SDK Flutter absent
+  de l'environnement) — à tester sur machine desktop équipée.
+  [`apps/app/lib/services/auth_service.dart`](apps/app/lib/services/auth_service.dart).
 
 - [x] Vérifier et dater les formalités belges par défaut. **(fait — 2026-07-11)**
   Checklist et guides revus sur belgium.be, notaire.be, SPF Finances ;

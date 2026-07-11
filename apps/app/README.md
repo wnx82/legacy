@@ -25,13 +25,29 @@ flutter run --dart-define=API_URL=http://localhost:3001/api \
 
 ### Authentification desktop
 
-`flutter_appauth` fonctionne nativement sur Android et iOS. Sur Windows,
-macOS et Linux, le flux de redirection nécessite un serveur de callback
-local (écoute sur `http://localhost:<port>/callback`) plutôt que le schéma
-personnalisé `legacy://callback` utilisé sur mobile — cette adaptation est
-prévue en Phase 1 (voir `docs/roadmap.md`) et n'est pas encore implémentée
-dans ce scaffold. Le code d'authentification (`lib/services/auth_service.dart`)
-est isolé pour faciliter cet ajout sans toucher au reste de l'application.
+`flutter_appauth` fonctionne nativement sur Android et iOS (schéma
+personnalisé `legacy://callback`). Sur Windows, macOS et Linux, il ne gère
+pas le retour de redirection ; **le flux desktop est désormais implémenté**
+(`lib/services/auth_service.dart`, `_loginDesktop`) selon le patron
+« loopback » recommandé par la RFC 8252 (§7.3) :
+
+1. récupération du document de découverte OIDC (`_discoveryUrlEnv`) ;
+2. génération d'un `code_verifier` / `code_challenge` PKCE (SHA-256) ;
+3. démarrage d'un serveur HTTP éphémère sur `127.0.0.1:<port aléatoire>` ;
+4. ouverture du navigateur système (`url_launcher`) vers l'`authorization_endpoint`
+   avec `redirect_uri=http://localhost:<port>/callback` ;
+5. réception du `code` sur le serveur local (vérification du `state`), page de
+   confirmation, puis échange `code` → token au `token_endpoint` ;
+6. stockage des tokens dans le coffre natif (`flutter_secure_storage`).
+
+Le realm Keycloak autorise déjà `http://localhost:*/*` pour le client
+`legacy-app` (`infra/keycloak/realm-export.json`). La sélection mobile/desktop
+est automatique (`_isDesktop`).
+
+> Note : l'application Flutter n'a pas pu être compilée/exécutée dans
+> l'environnement d'intervention (SDK Flutter absent) ; ce flux est fourni
+> complet et conforme au standard, mais son exécution reste **à vérifier** sur
+> une machine desktop équipée du SDK Flutter (`flutter run -d windows|macos|linux`).
 
 ### Modules avec limitations connues (MVP)
 
